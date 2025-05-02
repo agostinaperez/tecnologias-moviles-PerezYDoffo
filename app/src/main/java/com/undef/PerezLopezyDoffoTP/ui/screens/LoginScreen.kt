@@ -60,7 +60,7 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             LaunchedEffect(Unit) {
                 delay(3000)
-                navController.navigate(Screen.Profile.route)
+                navController.navigate(Screen.Home.route)
                 viewModel.resetLoading()
             }
         }
@@ -139,7 +139,7 @@ fun FieldPassword(password: String, onTextFieldChanged: (String) -> Unit) {
 @Composable
 fun TextRegister(modifier: Modifier) {
     Text(
-        text = "Register",
+        text = "No tenés cuenta? Registrate",
         modifier = modifier
             .padding(top = 10.dp, bottom = 25.dp)
             .clickable {

@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import  com.undef.PerezLopezyDoffoTP.ui.screens.LoginScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.ProfileScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.SplashScreen
+import com.undef.PerezLopezyDoffoTP.ui.screens.HomeScreen
 
 @Composable
 fun SetupNavigation (){
@@ -17,12 +18,16 @@ fun SetupNavigation (){
             SplashScreen(navController = navController)
         }
 
-        composable(route = Screen.Login.route) {
+        composable(route = Screen.Login.route){
             LoginScreen(navController = navController)
         }
 
-        composable(route = Screen.Profile.route) {
+        composable(route = Screen.Profile.route){
             ProfileScreen(navController = navController)
+        }
+
+        composable(route = Screen.Home.route) {
+            HomeScreen(navController = navController)
         }
     }
 }
