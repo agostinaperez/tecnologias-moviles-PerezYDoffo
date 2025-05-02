@@ -7,8 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.Surface
-import com.undef.PerezLopezyDoffoTP.ui.LoginScreen
-import com.undef.PerezLopezyDoffoTP.ui.LoginViewModel
+import com.undef.PerezLopezyDoffoTP.ui.navigation.SetupNavigation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,9 +17,8 @@ class MainActivity : ComponentActivity() {
             Surface(
                 modifier = Modifier.fillMaxSize(),
             ) {
-                LoginScreen(LoginViewModel())
+                SetupNavigation()
             }
-
         }
     }
 }

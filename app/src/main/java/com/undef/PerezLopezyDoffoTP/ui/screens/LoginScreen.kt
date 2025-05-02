@@ -1,14 +1,14 @@
-package com.undef.PerezLopezyDoffoTP.ui
+package com.undef.PerezLopezyDoffoTP.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,7 +20,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,46 +27,51 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
+import com.undef.PerezLopezyDoffoTP.ui.viewModels.LoginViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(navController: NavController) {
+    val viewModel = LoginViewModel()
     Box(
         modifier = Modifier
             .background(Color.White)
             .padding(horizontal = 15.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Login(modifier = Modifier.fillMaxWidth(), viewModel)
-        }
+        Login(modifier = Modifier.fillMaxWidth(), viewModel, navController)
     }
 }
 
 @Composable
-fun Login(modifier: Modifier, viewModel: LoginViewModel) {
+fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavController) {
     val email: String by viewModel.email.observeAsState(initial = "")
     val password: String by viewModel.password.observeAsState(initial = "")
     val loginEnable: Boolean by viewModel.loginEnable.observeAsState(initial = false)
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
-    val coroutineScope = rememberCoroutineScope()
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            LaunchedEffect(Unit) {
+                delay(3000)
+                navController.navigate(Screen.Profile.route)
+                viewModel.resetLoading()
+            }
         }
     } else {
         Column(modifier = modifier) {
 
-            Spacer(modifier = Modifier.weight(0.7F))
+            Spacer(modifier = Modifier.weight(1.3F))
 
             LoginImage(Modifier.align(Alignment.CenterHorizontally))
 
-            Spacer(modifier = Modifier.weight(0.2F))
+            Spacer(modifier = Modifier.weight(0.4F))
 
             FieldEmail(email) { viewModel.onLoginChanged(it, password) }
 
@@ -76,9 +80,7 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel) {
             TextRegister(modifier = Modifier.align(Alignment.Start))
 
             ButtonLogin(loginEnable) {
-                coroutineScope.launch {
-                    viewModel.onLoginSelected()
-                }
+                viewModel.onLoginSelected()
             }
             Spacer(modifier = Modifier.weight(2.6F))
         }
@@ -87,12 +89,22 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel) {
 
 @Composable
 fun LoginImage(modifier: Modifier) {
-    Image(
-        painter = painterResource(id = R.drawable.iua_logo),
-        contentDescription = "Logo",
-        modifier = modifier
-            .size(200.dp)
-    )
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.icon),
+            contentDescription = "Logo",
+            modifier = Modifier.size(200.dp)
+        )
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(
+            text = "MANOS LOCALES",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
 }
 
 @Composable
