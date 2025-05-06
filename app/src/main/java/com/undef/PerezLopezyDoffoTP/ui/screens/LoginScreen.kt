@@ -59,8 +59,12 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             LaunchedEffect(Unit) {
-                delay(3000)
-                navController.navigate(Screen.Home.route)
+                delay(1500)
+                navController.navigate(Screen.Home.route){
+                    popUpTo(Screen.Login.route){
+                        inclusive = true
+                    }
+                }
                 viewModel.resetLoading()
             }
         }

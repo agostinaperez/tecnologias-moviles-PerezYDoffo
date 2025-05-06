@@ -9,6 +9,20 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.PaddingValues
+import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
+
+
+@Composable
+fun MainScaffold(navController: NavController, content: @Composable (PaddingValues) -> Unit) {
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(navController)
+        },
+        content = content
+    )
+}
 
 @Composable
 fun BottomNavBar(navController: NavController) {
@@ -39,6 +53,9 @@ fun BottomNavBar(navController: NavController) {
                         launchSingleTop = true
                         // Restaurar la pila del backstack en la navegación
                         restoreState = true
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
                     }
                 }
             )

@@ -13,6 +13,6 @@ sealed class BottomNavItem(
 ) {
     object Settings : BottomNavItem("configuracion", Icons.Default.Settings, "Configuracion")
     object Favorites : BottomNavItem("favoritos", Icons.Default.FavoriteBorder, "Favoritos")
-    object Explore : BottomNavItem("explorar", Icons.Default.ShoppingCart, "Explorar")
+    object Explore : BottomNavItem("home", Icons.Default.ShoppingCart, "Explorar")
     object Account : BottomNavItem("profile", Icons.Default.AccountCircle, "Perfil")
 }

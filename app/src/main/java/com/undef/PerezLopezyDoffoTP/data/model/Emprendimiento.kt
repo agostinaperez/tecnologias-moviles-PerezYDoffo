@@ -1,36 +1,48 @@
 package com.undef.PerezLopezyDoffoTP.data.model
 
 data class Emprendimiento (
+    val id: Number,
     val name: String,
     val location: String,
     val image: String,
-    val tel: Long,
+    val producto: String,
     val website: String
 ) {
     companion object {
         fun getEmprendimientos(): List<Emprendimiento> {
             return listOf(
                 Emprendimiento(
+                    1,
                     "Pastelería saludable",
                     "A 20 km",
-                    "https://unsplash.com/es/fotos/masa-horneada-en-bol-n49BjsFf5dI",
-                    3512007574,
+                    "https://images.unsplash.com/photo-1534432182912-63863115e106?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                    "Pastelería",
                     "www.example.com.ar"
                 ),
                 Emprendimiento(
+                    2,
                     "Moda circular",
                     "A 10 km",
-                    "https://unsplash.com/es/fotos/un-hombre-y-una-mujer-mirando-vestidos-en-un-perchero-3JfydSV5Ojs",
-                    343268781,
+                    "https://plus.unsplash.com/premium_photo-1714347049254-9ab68ae6a8df?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                    "Ropa",
                     "www.example.com.ar"
                 ),
                 Emprendimiento(
+                    3,
                     "Cerámica para principiantes",
                     "A 3 km",
-                    "https://unsplash.com/es/fotos/una-persona-esta-trabajando-en-ceramica-sobre-una-mesa-7eKcY6Vffqs",
-                    5789238430,
+                    "https://plus.unsplash.com/premium_photo-1706115464365-a82276f7e7b4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                    "Cerámica",
                     "www.example.com.ar"
                 ))
+        }
+
+        fun getEmprendimientosFiltrados(searchQuery: String): List<Emprendimiento> {
+            return getEmprendimientos().filter { it.name.contains(searchQuery, ignoreCase = true) || it.producto.contains(searchQuery, ignoreCase = true) }
+        }
+
+        fun getEmprendimientoById(emprendimientoId: Number): Emprendimiento {
+            return getEmprendimientos().find { it.id == emprendimientoId } ?: Emprendimiento(0, "", "", "", "", "")
         }
     }
 }

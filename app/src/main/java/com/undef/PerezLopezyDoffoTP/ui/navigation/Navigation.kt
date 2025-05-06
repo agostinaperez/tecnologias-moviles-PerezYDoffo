@@ -4,10 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.undef.PerezLopezyDoffoTP.ui.screens.EmprendimientoDetailScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.LoginScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.ProfileScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.SplashScreen
 import com.undef.PerezLopezyDoffoTP.ui.screens.HomeScreen
+import com.undef.PerezLopezyDoffoTP.ui.screens.SearchScreen
 
 @Composable
 fun SetupNavigation (){
@@ -28,6 +30,16 @@ fun SetupNavigation (){
 
         composable(route = Screen.Home.route) {
             HomeScreen(navController = navController)
+        }
+
+        composable(route = Screen.EmprendimientoDetail.route) { backStackEntry ->
+            val emprendimientoId = backStackEntry.arguments?.getString("emprendimientoId")
+            EmprendimientoDetailScreen(navController = navController, emprendimientoId = emprendimientoId!!.toInt())
+        }
+
+        composable(route = Screen.Search.route) { backStackEntry ->
+            val title = backStackEntry.arguments?.getString("title")
+            SearchScreen(navController = navController, title = title!!)
         }
     }
 }

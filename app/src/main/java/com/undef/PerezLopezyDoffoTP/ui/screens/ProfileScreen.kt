@@ -38,14 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
 import com.undef.PerezLopezyDoffoTP.ui.components.BottomNavBar
+import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
 
 @Composable
 fun ProfileScreen(navController: NavController) {
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(navController)
-        }
-    ) { innerPadding ->
+    MainScaffold(navController = navController) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
