@@ -7,7 +7,7 @@ Manos Locales es una aplicación Android desarrollada con Kotlin que utiliza Jet
 🚀 Cómo ejecutar la aplicación
 1️⃣ Clonar el repositorio
 
-   git clone https://github.com/AlejoGazagne/Android.git
+   gh repo clone agostinaperez/tecnologias-moviles-PerezYDoffo
    cd Android
 
 2️⃣ Abrir el proyecto en Android Studio
