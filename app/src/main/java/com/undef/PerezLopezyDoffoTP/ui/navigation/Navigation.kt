@@ -10,6 +10,7 @@ import  com.undef.PerezLopezyDoffoTP.ui.screens.ProfileScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.SplashScreen
 import com.undef.PerezLopezyDoffoTP.ui.screens.HomeScreen
 import com.undef.PerezLopezyDoffoTP.ui.screens.SearchScreen
+import com.undef.PerezLopezyDoffoTP.ui.screens.SignUpScreen
 
 @Composable
 fun SetupNavigation (){
@@ -22,6 +23,10 @@ fun SetupNavigation (){
 
         composable(route = Screen.Login.route){
             LoginScreen(navController = navController)
+        }
+        
+        composable(route = Screen.SignUp.route){
+            SignUpScreen(navController = navController)
         }
 
         composable(route = Screen.Profile.route){

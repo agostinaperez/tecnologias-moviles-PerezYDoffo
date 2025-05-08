@@ -2,7 +2,6 @@ package com.undef.PerezLopezyDoffoTP.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,12 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
-import com.undef.PerezLopezyDoffoTP.ui.viewModels.LoginViewModel
-import kotlinx.coroutines.launch
+import com.undef.PerezLopezyDoffoTP.ui.viewModels.SignUpViewModel
 import kotlinx.coroutines.delay
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import androidx.compose.runtime.LaunchedEffect
@@ -41,26 +38,26 @@ import androidx.navigation.compose.rememberNavController
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewLoginScreen() {
-    LoginScreen(navController = rememberNavController())
+fun PreviewSignUpScreen() {
+    SignUpScreen(navController = rememberNavController())
 }
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    val viewModel = LoginViewModel()
+fun SignUpScreen(navController: NavController){
+    val viewModel = SignUpViewModel()
     Box(
         modifier = Modifier
             .background(Color.White)
             .padding(horizontal = 15.dp)
     ) {
-        Login(modifier = Modifier.fillMaxWidth(), viewModel, navController)
+        SignUp(modifier = Modifier.fillMaxWidth(), viewModel, navController)
     }
 }
-
 @Composable
-fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavController) {
+fun SignUp(modifier: Modifier, viewModel: SignUpViewModel, navController: NavController){
     val email: String by viewModel.email.observeAsState(initial = "")
     val password: String by viewModel.password.observeAsState(initial = "")
+    val username: String by viewModel.username.observeAsState(initial = "")
     val loginEnable: Boolean by viewModel.loginEnable.observeAsState(initial = false)
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
     if (isLoading) {
@@ -69,7 +66,7 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
             LaunchedEffect(Unit) {
                 delay(1500)
                 navController.navigate(Screen.Home.route){
-                    popUpTo(Screen.Login.route){
+                    popUpTo(Screen.SignUp.route){
                         inclusive = true
                     }
                 }
@@ -81,18 +78,18 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
 
             Spacer(modifier = Modifier.weight(1.3F))
 
-            LoginImage(Modifier.align(Alignment.CenterHorizontally))
+            SignUpImage(Modifier.align(Alignment.CenterHorizontally))
 
             Spacer(modifier = Modifier.weight(0.4F))
 
-            FieldEmail(email) { viewModel.onLoginChanged(it, password) }
+            FieldUsername(username) { viewModel.onSignUpChanged(email, password, it) }
 
-            FieldPassword(password) { viewModel.onLoginChanged(email, it) }
+            FieldEmail(email) { viewModel.onSignUpChanged(it, password, username) }
 
-            TextRegister(modifier = Modifier.align(Alignment.Start), navController)
+            FieldPassword(password) { viewModel.onSignUpChanged(email, it, username) }
 
-            ButtonLogin(loginEnable) {
-                viewModel.onLoginSelected()
+            ButtonSignUp(loginEnable) {
+                viewModel.onSignUpSelected()
             }
             Spacer(modifier = Modifier.weight(2.6F))
         }
@@ -100,7 +97,7 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
 }
 
 @Composable
-fun LoginImage(modifier: Modifier) {
+fun SignUpImage(modifier: Modifier){
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -108,42 +105,26 @@ fun LoginImage(modifier: Modifier) {
         Image(
             painter = painterResource(id = R.drawable.icon),
             contentDescription = "Logo",
-            modifier = Modifier.size(200.dp)
+            modifier = Modifier.size(100.dp)
         )
         Spacer(modifier = Modifier.height(15.dp))
         Text(
             text = "MANOS LOCALES",
-            fontSize = 30.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
     }
 }
 
 @Composable
-fun FieldEmail(email: String, onTextFieldChanged: (String) -> Unit) {
+fun FieldUsername(username: String, onTextFieldChanged: (String) -> Unit) {
     TextField(
-        value = email,
+        value = username,
         onValueChange = { onTextFieldChanged(it) },
-        label = { Text("Email") },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp),
-        singleLine = true
-    )
-}
-
-
-@Composable
-fun FieldPassword(password: String, onTextFieldChanged: (String) -> Unit) {
-    TextField(
-        value = password,
-        onValueChange = { onTextFieldChanged(it) },
-        label = { Text("Password") },
+        label = { Text("Username") },
         modifier = Modifier
             .padding(top = 10.dp)
             .fillMaxWidth(),
-
-        visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,
             autoCorrectEnabled = false
@@ -153,33 +134,18 @@ fun FieldPassword(password: String, onTextFieldChanged: (String) -> Unit) {
 }
 
 @Composable
-fun TextRegister(modifier: Modifier, navController: NavController) {
-    Text(
-        text = "No tenés cuenta? Registrate",
-        modifier = modifier
-            .padding(top = 10.dp, bottom = 25.dp)
-            .clickable {
-                navController.navigate(Screen.SignUp.route){
-                    popUpTo(Screen.Login.route) {
-                        inclusive = true
-                    }
-                }
-            },)
-}
-
-@Composable
-fun ButtonLogin(loginEnable: Boolean, onLoginSelected: () -> Unit) {
+fun ButtonSignUp(loginEnable: Boolean, onSignUpSelected: () -> Unit){
     Button(
         onClick = {
-            onLoginSelected()
+            onSignUpSelected()
         },
         shape = RoundedCornerShape(5.dp),
-
         modifier = Modifier
+            .padding(top = 20.dp)
             .fillMaxWidth()
             .size(50.dp),
         enabled = loginEnable
     ) {
-        Text(text = "Login")
+        Text(text = "Sign Up")
     }
 }
