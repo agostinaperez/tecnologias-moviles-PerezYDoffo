@@ -14,4 +14,10 @@ sealed class Screen(val route: String) {
     object EmprendimientoDetail : Screen("emprendimientoDetail/{emprendimientoId}")
 
     object Search : Screen("search?title={title}")
+
+    object EditProfile: Screen("editprofile")
+
+    object Settings: Screen("settings")
+
+    object FavsScreen: Screen("favsscreen")
 }

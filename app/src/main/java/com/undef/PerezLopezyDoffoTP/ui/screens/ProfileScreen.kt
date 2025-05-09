@@ -39,6 +39,7 @@ import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
 import com.undef.PerezLopezyDoffoTP.ui.components.BottomNavBar
 import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
+import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -68,27 +69,31 @@ fun Profile(modifier: Modifier, navController: NavController) {
             .padding(20.dp)
             .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
     ){
-        Menu(modifier = modifier)
+        Menu(modifier = modifier, navController)
     }
 }
 
 @Composable
-fun Menu(modifier: Modifier){
+fun Menu(modifier: Modifier, navController: NavController){
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(Color(0xffebebeb), RoundedCornerShape(8.dp))
     ) {
         MenuItem(
             icon = Icons.Default.Edit,
             text = "Edit Profile",
-            onClick = { /* Acción del menú */ }
+            onClick = {
+                navController.navigate(Screen.EditProfile.route)
+            }
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         MenuItem(
             icon = Icons.Default.Settings,
             text = "Settings",
-            onClick = { /* Acción del menú */ }
+            onClick = {
+                navController.navigate(Screen.Settings.route)
+            }
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         MenuItem(
@@ -96,7 +101,9 @@ fun Menu(modifier: Modifier){
             text = "Logout",
             textColor = Color.Red,
             iconColor = Color.Red,
-            onClick = { /* Acción del logout */ },
+            onClick = {
+                navController.navigate(Screen.Splash.route)
+            },
             showArrow = false
         )
     }
@@ -189,7 +196,7 @@ fun Username(modifier: Modifier) {
 @Composable
 fun Mail(modifier: Modifier){
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFFD6E4FF))
             .padding(horizontal = 16.dp, vertical = 8.dp)
