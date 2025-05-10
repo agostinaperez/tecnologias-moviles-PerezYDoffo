@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.undef.PerezLopezyDoffoTP.ui.screens.EditProfileScreen
 import com.undef.PerezLopezyDoffoTP.ui.screens.EmprendimientoDetailScreen
+import com.undef.PerezLopezyDoffoTP.ui.screens.FavsScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.LoginScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.ProfileScreen
 import  com.undef.PerezLopezyDoffoTP.ui.screens.SplashScreen
@@ -57,8 +58,8 @@ fun SetupNavigation (){
             SearchScreen(navController = navController, title = title!!)
         }
 
-        composable(route = Screen.FavsScreen.route){
-            /*TODO*/
+        composable(route = Screen.Favs.route){
+            FavsScreen(navController = navController)
         }
 
     }

@@ -19,5 +19,5 @@ sealed class Screen(val route: String) {
 
     object Settings: Screen("settings")
 
-    object FavsScreen: Screen("favsscreen")
+    object Favs: Screen("favs")
 }
