@@ -11,38 +11,32 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import android.Manifest
 import android.content.Context
-import androidx.compose.foundation.R
-import androidx.compose.foundation.background
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.SettingsViewModel
+import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
+
 
 @Preview(showBackground = true)
 @Composable
@@ -54,16 +48,17 @@ fun SettingsPreview() {
 fun SettingsScreen(navController: NavController) {
     val viewModel: SettingsViewModel = viewModel()
     val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        viewModel.loadPreferences(context)
-    }
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ){
-        Settings(modifier = Modifier, navController, viewModel, context)
+    BackBar(navController) { paddingValues ->
+        LaunchedEffect(Unit) {
+            viewModel.loadPreferences(context)
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Settings(modifier = Modifier, navController, viewModel, context)
+        }
     }
 }
 

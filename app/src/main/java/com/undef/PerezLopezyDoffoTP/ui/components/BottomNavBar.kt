@@ -27,7 +27,6 @@ fun MainScaffold(navController: NavController, content: @Composable (PaddingValu
 @Composable
 fun BottomNavBar(navController: NavController) {
     val items = listOf(
-        BottomNavItem.Settings,
         BottomNavItem.Favorites,
         BottomNavItem.Explore,
         BottomNavItem.Account
