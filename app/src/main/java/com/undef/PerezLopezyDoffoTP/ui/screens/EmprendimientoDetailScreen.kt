@@ -25,10 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
+import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
-import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
-import com.undef.PerezLopezyDoffoTP.ui.viewModels.FavsViewModel
+
 
 @Composable
 fun EmprendimientoDetailScreen(emprendimientoId: Number, navController: NavHostController) {
@@ -45,7 +45,7 @@ fun EmprendimientoDetailScreen(emprendimientoId: Number, navController: NavHostC
 
 @Composable
 fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostController) {
-    val emprendimiento = Emprendimiento.getEmprendimientoById(emprendimientoId)
+    val emprendimiento: Emprendimiento = EmprendimientoRepository.getEmprendimientoById(emprendimientoId)
 
     Column(
         modifier = Modifier
@@ -98,7 +98,7 @@ fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostControl
         // Botón para agregar a favoritos
         OutlinedButton(
             onClick = {
-                emprendimiento.setFav(emprendimientoId)
+                EmprendimientoRepository.setFav(emprendimientoId)
             },
             modifier = Modifier
                 .fillMaxWidth()
