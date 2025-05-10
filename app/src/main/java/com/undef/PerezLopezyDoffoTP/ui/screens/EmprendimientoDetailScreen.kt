@@ -25,8 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
+import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
+import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
+
 
 
 @Composable
@@ -37,14 +40,14 @@ fun EmprendimientoDetailScreen(emprendimientoId: Number, navController: NavHostC
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            EmprendimientoDetail(emprendimientoId = emprendimientoId)
+            EmprendimientoDetail(emprendimientoId = emprendimientoId, navController)
         }
     }
 }
 
 @Composable
-fun EmprendimientoDetail(emprendimientoId: Number) {
-    val emprendimiento: Emprendimiento = Emprendimiento.getEmprendimientoById(emprendimientoId)
+fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostController) {
+    val emprendimiento: Emprendimiento = EmprendimientoRepository.getEmprendimientoById(emprendimientoId)
 
     Column(
         modifier = Modifier
@@ -96,13 +99,25 @@ fun EmprendimientoDetail(emprendimientoId: Number) {
 
         // Botón para agregar a favoritos
         OutlinedButton(
-            onClick = { /* Lógica para agregar a favoritos */ },
+            onClick = {
+                EmprendimientoRepository.setFav(emprendimientoId)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
         ) {
-            Text(text = "Agregar a Favoritos", style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary))
+            if (!emprendimiento.isFav) {
+                Text(
+                    text = "Agregar a Favoritos",
+                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
+                )
+            } else{
+                Text(
+                    text = "Quitar de Favoritos",
+                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.secondary)
+                )
+            }
         }
     }
 }

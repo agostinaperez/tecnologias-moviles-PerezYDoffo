@@ -24,7 +24,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
 
 @Composable
-fun EmprendimientoItem(emprendimiento: Emprendimiento, onClick: (Number) -> Unit) {
+fun EmprendimientoItem(
+    emprendimiento: Emprendimiento,
+    onClick: (Number) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -76,7 +79,7 @@ fun EmprendimientoItem(emprendimiento: Emprendimiento, onClick: (Number) -> Unit
                         color = Color.White
                     )
                     Text(
-                        text = "Capacity: ${emprendimiento.producto}",
+                        text = "Categoría: ${emprendimiento.producto}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
@@ -86,7 +89,7 @@ fun EmprendimientoItem(emprendimiento: Emprendimiento, onClick: (Number) -> Unit
                         color = Color.White
                     )
                     Text(
-                        text = "Organizer: ${emprendimiento.website}",
+                        text = "Web: ${emprendimiento.website}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
