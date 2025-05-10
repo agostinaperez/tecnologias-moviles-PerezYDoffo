@@ -28,15 +28,17 @@ import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
 import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
+import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
+
 
 
 @Composable
 fun EmprendimientoDetailScreen(emprendimientoId: Number, navController: NavHostController) {
-    MainScaffold(navController = navController) { innerPadding ->
+    BackBar(navController){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(paddingValues)
         ) {
             EmprendimientoDetail(emprendimientoId = emprendimientoId, navController)
         }

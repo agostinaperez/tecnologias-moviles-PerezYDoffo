@@ -1,8 +1,5 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
-import android.text.Layout
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.R
 import androidx.compose.material3.TextField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,9 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,13 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +35,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
+import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 
 @Preview(showBackground = true)
 @Composable
@@ -52,12 +45,15 @@ fun PreviewEditProfileScreen(){
 
 @Composable
 fun EditProfileScreen(navController: NavController){
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ){
-        EditProfile(modifier = Modifier, navController)
+    BackBar(navController){ paddingValues ->
+        Column (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+        ){
+            EditProfile(modifier = Modifier, navController)
+        }
     }
 }
 

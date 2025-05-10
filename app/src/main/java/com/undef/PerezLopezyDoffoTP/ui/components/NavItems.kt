@@ -11,7 +11,6 @@ sealed class BottomNavItem(
     val icon: ImageVector,
     val title: String
 ) {
-    object Settings : BottomNavItem("settings", Icons.Default.Settings, "Configuracion")
     object Favorites : BottomNavItem("favs", Icons.Default.FavoriteBorder, "Favoritos")
     object Explore : BottomNavItem("home", Icons.Default.ShoppingCart, "Explorar")
     object Account : BottomNavItem("profile", Icons.Default.AccountCircle, "Perfil")
