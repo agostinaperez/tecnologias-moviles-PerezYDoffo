@@ -63,7 +63,7 @@ fun EditProfile(modifier: Modifier, navController: NavController){
     var usernameState by remember { mutableStateOf("username") }
     var passwordState by remember { mutableStateOf("pass123") }
 
-    Spacer(modifier= Modifier.height(15.dp))
+    
     Text(text = "Edit Profile", fontSize = 24.sp, fontWeight = FontWeight.Bold)
     Box(
         modifier = modifier
@@ -91,7 +91,7 @@ fun EditProfile(modifier: Modifier, navController: NavController){
             EditParameter(modifier = modifier, passwordState, "Password") { newPassword ->
                 passwordState = newPassword
             }
-            Spacer(modifier = Modifier.height(300.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             Box(
                 modifier = Modifier
                     .height(50.dp),

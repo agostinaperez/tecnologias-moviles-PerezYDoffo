@@ -55,7 +55,7 @@ fun SettingsScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(paddingValues)
         ) {
             Settings(modifier = Modifier, navController, viewModel, context)
         }
