@@ -159,11 +159,7 @@ fun TextRegister(modifier: Modifier, navController: NavController) {
         modifier = modifier
             .padding(top = 10.dp, bottom = 25.dp)
             .clickable {
-                navController.navigate(Screen.SignUp.route){
-                    popUpTo(Screen.Login.route) {
-                        inclusive = true
-                    }
-                }
+                navController.navigate(Screen.SignUp.route)
             },)
 }
 

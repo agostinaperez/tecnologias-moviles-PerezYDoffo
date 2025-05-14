@@ -51,6 +51,7 @@ fun SignUpScreen(navController: NavController){
             modifier = Modifier
                 .background(Color.White)
                 .padding(paddingValues)
+                .padding(16.dp, 0.dp)
         ) {
             SignUp(modifier = Modifier.fillMaxWidth(), viewModel, navController)
         }
@@ -79,7 +80,7 @@ fun SignUp(modifier: Modifier, viewModel: SignUpViewModel, navController: NavCon
     } else {
         Column(modifier = modifier) {
 
-            Spacer(modifier = Modifier.weight(1.3F))
+            //Spacer(modifier = Modifier.weight(1.3F))
 
             SignUpImage(Modifier.align(Alignment.CenterHorizontally))
 
