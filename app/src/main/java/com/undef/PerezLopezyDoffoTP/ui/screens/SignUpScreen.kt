@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 
 @Preview(showBackground = true)
 @Composable
@@ -45,12 +46,14 @@ fun PreviewSignUpScreen() {
 @Composable
 fun SignUpScreen(navController: NavController){
     val viewModel = SignUpViewModel()
-    Box(
-        modifier = Modifier
-            .background(Color.White)
-            .padding(horizontal = 15.dp)
-    ) {
-        SignUp(modifier = Modifier.fillMaxWidth(), viewModel, navController)
+    BackBar(navController){ paddingValues ->
+        Box(
+            modifier = Modifier
+                .background(Color.White)
+                .padding(paddingValues)
+        ) {
+            SignUp(modifier = Modifier.fillMaxWidth(), viewModel, navController)
+        }
     }
 }
 @Composable
