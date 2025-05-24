@@ -5,7 +5,6 @@ data class Emprendimiento (
     val name: String,
     val location: String,
     val image: String,
-    val producto: String,
-    val website: String,
-    var isFav: Boolean
+    val categoria: String,
+    val website: String
 )

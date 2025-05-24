@@ -11,7 +11,7 @@ sealed class Screen(val route: String) {
 
     object Home : Screen("home")
 
-    object EmprendimientoDetail : Screen("emprendimientoDetail/{emprendimientoId}")
+    object ProductoDetail : Screen("productoDetail/{productoId}")
 
     object Search : Screen("search?title={title}")
 

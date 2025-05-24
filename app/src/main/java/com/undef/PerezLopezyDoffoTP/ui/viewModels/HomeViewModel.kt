@@ -6,6 +6,6 @@ import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
 import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 
 class HomeViewModel : ViewModel() {
-    private val _emprendimientos = MutableLiveData(EmprendimientoRepository.getEmprendimientos())
-    val emprendimientos: MutableLiveData<List<Emprendimiento>> = _emprendimientos
+    private val _productos = MutableLiveData(EmprendimientoRepository.getEmprendimientos())
+    val productos: MutableLiveData<List<Emprendimiento>> = _productos
 }

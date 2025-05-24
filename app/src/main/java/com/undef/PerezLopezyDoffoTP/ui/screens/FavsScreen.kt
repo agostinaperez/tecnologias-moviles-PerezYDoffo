@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.ui.components.EmprendimientoItem
 import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
+import com.undef.PerezLopezyDoffoTP.ui.components.ProductoItem
 import com.undef.PerezLopezyDoffoTP.ui.components.SearchBar
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
@@ -39,7 +40,7 @@ fun FavsScreen (navController: NavController){
 
 @Composable
 fun Favs(modifier: Modifier, navController: NavController){
-    val favorites = FavsViewModel().getEmprendimientosFavs()
+    val favorites = FavsViewModel().getProductosFavs()
     LazyColumn(modifier = modifier) {
         item {
             Spacer(modifier = Modifier.height(16.dp))
@@ -57,9 +58,9 @@ fun Favs(modifier: Modifier, navController: NavController){
                 )
             }
         }
-        items(favorites) { emprendimiento ->
-            EmprendimientoItem(emprendimiento) { selectedEmprendimiento ->
-                navController.navigate(Screen.EmprendimientoDetail.route.replace("{emprendimientoId}", selectedEmprendimiento.toString()))
+        items(favorites) { producto ->
+            ProductoItem(producto) { selectedProducto ->
+                navController.navigate(Screen.EmprendimientoDetail.route.replace("{productoId}", selectedProducto.toString()))
             }
         }
     }

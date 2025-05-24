@@ -9,5 +9,5 @@ val White = Color(0xFFFFFFFF)
 
 val BlueDark = Color(0xFF64B5F6)
 val GreyDark = Color(0xFFB0BEC5)
-val LightBlueDark = Color(0xFF81D4FA)
+val LightBlue = Color(0xFF81D4FA)
 val Black = Color(0xFF000000)

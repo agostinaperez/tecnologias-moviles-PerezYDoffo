@@ -26,7 +26,7 @@ import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.components.SearchBar
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import com.undef.PerezLopezyDoffoTP.ui.components.EmprendimientoItem
-
+import com.undef.PerezLopezyDoffoTP.ui.components.ProductoItem
 
 
 @Composable
@@ -45,7 +45,7 @@ fun HomeScreen(navController: NavController) {
 @Composable
 fun Home(modifier: Modifier, homeViewModel: HomeViewModel, navController: NavController) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    val emprendimientos by homeViewModel.emprendimientos.observeAsState(listOf())
+    val productos by homeViewModel.productos.observeAsState(listOf())
 
     LazyColumn(modifier = modifier) {
         item {
@@ -58,16 +58,16 @@ fun Home(modifier: Modifier, homeViewModel: HomeViewModel, navController: NavCon
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Emprendimientos cerca de tu zona",
+                text = "Lista de Productos",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        items(emprendimientos) { emprendimiento ->
-            EmprendimientoItem(emprendimiento) { selectedEmprendimiento ->
-                navController.navigate(Screen.EmprendimientoDetail.route.replace("{emprendimientoId}", selectedEmprendimiento.toString()))
+        items(productos) { producto ->
+            ProductoItem(producto) { selectedProducto ->
+                navController.navigate(Screen.ProductoDetail.route.replace("{productoId}", selectedProducto.toString()))
             }
         }
     }

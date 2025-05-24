@@ -24,30 +24,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
-import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
-import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
+import com.undef.PerezLopezyDoffoTP.data.model.Producto
+import com.undef.PerezLopezyDoffoTP.data.model.producto
+import com.undef.PerezLopezyDoffoTP.repository.productoRepository
+import com.undef.PerezLopezyDoffoTP.repository.ProductoRepository
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 
 
 
 @Composable
-fun EmprendimientoDetailScreen(emprendimientoId: Number, navController: NavHostController) {
+fun ProductoDetailScreen(productoId: Number, navController: NavHostController) {
     BackBar(navController){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            EmprendimientoDetail(emprendimientoId = emprendimientoId, navController)
+            ProductoDetail(productoId = productoId, navController)
         }
     }
 }
 
 @Composable
-fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostController) {
-    val emprendimiento: Emprendimiento = EmprendimientoRepository.getEmprendimientoById(emprendimientoId)
+fun ProductoDetail(productoId: Number, navController: NavHostController) {
+    val producto: Producto = ProductoRepository.getProductoById(productoId)
 
     Column(
         modifier = Modifier
@@ -56,7 +57,7 @@ fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostControl
     ) {
         // Imagen destacada
         Image(
-            painter = rememberAsyncImagePainter(emprendimiento.image),
+            painter = rememberAsyncImagePainter(producto.image),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -68,19 +69,19 @@ fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostControl
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Nombre del emprendimiento
+        // Nombre del producto
         Text(
-            text = emprendimiento.name,
+            text = producto.name,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Detalles del emprendimiento
-        Text(text = "Producto: ${emprendimiento.producto}", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Ubicación: ${emprendimiento.location}", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Página web del emprendedor: ${emprendimiento.website}", style = MaterialTheme.typography.bodyLarge)
+        // Detalles del producto
+        Text(text = "Producto: ${producto.name}", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Descripción: ${producto.description}", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "Emprendedor: ${ProductoRepository.getEmprendimientoByProducto(producto).name}", style = MaterialTheme.typography.bodyLarge)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -100,14 +101,14 @@ fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostControl
         // Botón para agregar a favoritos
         OutlinedButton(
             onClick = {
-                EmprendimientoRepository.setFav(emprendimientoId)
+                ProductoRepository.setFav(productoId)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
         ) {
-            if (!emprendimiento.isFav) {
+            if (!producto.isFav) {
                 Text(
                     text = "Agregar a Favoritos",
                     style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)

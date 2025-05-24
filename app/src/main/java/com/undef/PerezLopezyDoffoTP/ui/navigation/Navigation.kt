@@ -48,9 +48,9 @@ fun SetupNavigation (){
             HomeScreen(navController = navController)
         }
 
-        composable(route = Screen.EmprendimientoDetail.route) { backStackEntry ->
-            val emprendimientoId = backStackEntry.arguments?.getString("emprendimientoId")
-            EmprendimientoDetailScreen(navController = navController, emprendimientoId = emprendimientoId!!.toInt())
+        composable(route = Screen.ProductoDetail.route) { backStackEntry ->
+            val productoId = backStackEntry.arguments?.getString("emprendimientoId")
+            ProductoDetailScreen(navController = navController, emprendimientoId = emprendimientoId!!.toInt())
         }
 
         composable(route = Screen.Search.route) { backStackEntry ->
