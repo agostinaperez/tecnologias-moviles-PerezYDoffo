@@ -24,31 +24,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.undef.PerezLopezyDoffoTP.data.model.Producto
-import com.undef.PerezLopezyDoffoTP.data.model.producto
-import com.undef.PerezLopezyDoffoTP.repository.productoRepository
-import com.undef.PerezLopezyDoffoTP.repository.ProductoRepository
+import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
+import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
+import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 
 
 
 @Composable
-fun ProductoDetailScreen(productoId: Number, navController: NavHostController) {
+fun EmprendimientoDetailScreen(emprendimientoId: Number, navController: NavHostController) {
     BackBar(navController){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            ProductoDetail(productoId = productoId, navController)
+            EmprendimientoDetail(emprendimientoId = emprendimientoId, navController)
         }
     }
 }
 
 @Composable
-fun ProductoDetail(productoId: Number, navController: NavHostController) {
-    val producto: Producto = ProductoRepository.getProductoById(productoId)
+fun EmprendimientoDetail(emprendimientoId: Number, navController: NavHostController) {
+    val emprendimiento: Emprendimiento = EmprendimientoRepository.getEmprendimientoById(emprendimientoId)
 
     Column(
         modifier = Modifier
@@ -57,7 +56,7 @@ fun ProductoDetail(productoId: Number, navController: NavHostController) {
     ) {
         // Imagen destacada
         Image(
-            painter = rememberAsyncImagePainter(producto.image),
+            painter = rememberAsyncImagePainter(emprendimiento.image),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,19 +68,19 @@ fun ProductoDetail(productoId: Number, navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Nombre del producto
+        // Nombre del emprendimiento
         Text(
-            text = producto.name,
+            text = emprendimiento.name,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Detalles del producto
-        Text(text = "Producto: ${producto.name}", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Descripción: ${producto.description}", style = MaterialTheme.typography.bodyMedium)
-        Text(text = "Emprendedor: ${ProductoRepository.getEmprendimientoByProducto(producto).name}", style = MaterialTheme.typography.bodyLarge)
+        // Detalles del emprendimiento
+        Text(text = "Producto: ${emprendimiento.producto}", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Ubicación: ${emprendimiento.location}", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Página web del emprendedor: ${emprendimiento.website}", style = MaterialTheme.typography.bodyLarge)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -101,14 +100,14 @@ fun ProductoDetail(productoId: Number, navController: NavHostController) {
         // Botón para agregar a favoritos
         OutlinedButton(
             onClick = {
-                ProductoRepository.setFav(productoId)
+                EmprendimientoRepository.setFav(emprendimientoId)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
         ) {
-            if (!producto.isFav) {
+            if (!emprendimiento.isFav) {
                 Text(
                     text = "Agregar a Favoritos",
                     style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)
