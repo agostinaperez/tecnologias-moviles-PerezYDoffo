@@ -1,11 +1,11 @@
 package com.undef.PerezLopezyDoffoTP.data.model
 
-data class Emprendimiento (
-    val id: Number,
+data class Emprendimiento(
+    val id: Int,
     val name: String,
-    val location: String,
+    val description: String,
     val image: String,
-    val producto: String,
-    val website: String,
-    var isFav: Boolean
+    val category: String,
+    val emprendedor: Emprendedor,
+    var isFav: Boolean = false
 )

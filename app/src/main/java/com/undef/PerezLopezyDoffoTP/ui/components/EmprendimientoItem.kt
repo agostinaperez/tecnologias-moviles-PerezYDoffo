@@ -26,7 +26,7 @@ import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
 @Composable
 fun EmprendimientoItem(
     emprendimiento: Emprendimiento,
-    onClick: (Number) -> Unit
+    onClick: (Int) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -74,22 +74,27 @@ fun EmprendimientoItem(
                         color = Color.White
                     )
                     Text(
-                        text = emprendimiento.location,
+                        text = "Por ${emprendimiento.emprendedor.name}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White
                     )
                     Text(
-                        text = "Categoría: ${emprendimiento.producto}",
+                        text = emprendimiento.description,
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
                     Text(
-                        text = emprendimiento.location,
+                        text = "Categoría: ${emprendimiento.category}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
                     Text(
-                        text = "Web: ${emprendimiento.website}",
+                        text = "Zona: ${emprendimiento.emprendedor.location}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Web: ${emprendimiento.emprendedor.website}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
