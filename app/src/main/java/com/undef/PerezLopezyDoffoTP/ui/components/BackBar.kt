@@ -17,15 +17,20 @@ import androidx.navigation.NavController
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun BackBar(navController: NavController, content: @Composable (PaddingValues) -> Unit){
+fun BackBar(
+    navController: NavController,
+    onBack: (() -> Unit)? = null,
+    content: @Composable (PaddingValues) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "") },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    },
+                    IconButton(
+                        onClick = {
+                            onBack?.invoke() ?: navController.popBackStack()
+                        },
                         modifier = Modifier
                             .width(50.dp)
                     ) {

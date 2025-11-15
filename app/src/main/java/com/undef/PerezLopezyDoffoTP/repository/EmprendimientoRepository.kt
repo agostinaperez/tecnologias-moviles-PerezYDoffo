@@ -1,135 +1,114 @@
 package com.undef.PerezLopezyDoffoTP.repository
 
-import com.undef.PerezLopezyDoffoTP.data.model.Emprendedor
+import android.content.Context
+import androidx.room.Room
+import com.undef.PerezLopezyDoffoTP.data.local.ManosLocalesDatabase
+import com.undef.PerezLopezyDoffoTP.data.local.dao.EmprendimientoDao
+import com.undef.PerezLopezyDoffoTP.data.local.entity.EmprendimientoEntity
+import com.undef.PerezLopezyDoffoTP.data.local.entity.toDomain
+import com.undef.PerezLopezyDoffoTP.data.local.entity.toEntity
 import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
+import com.undef.PerezLopezyDoffoTP.data.remote.EmprendimientoApiService
+import com.undef.PerezLopezyDoffoTP.data.remote.NetworkModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-object EmprendimientoRepository{
-    private val emprendedores = listOf(
-        Emprendedor(
-            id = 1,
-            name = "Cerámica by Sofi",
-            bio = "Piezas hechas a mano con terminaciones suaves y resistentes.",
-            location = "A 3 km",
-            image = "https://plus.unsplash.com/premium_photo-1706115464365-a82276f7e7b4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            website = "www.ceramicabysofi.com.ar"
-        ),
-        Emprendedor(
-            id = 2,
-            name = "Sabores Saludables",
-            bio = "Pastelería sin conservantes con opciones integrales y veganas.",
-            location = "A 20 km",
-            image = "https://images.unsplash.com/photo-1534432182912-63863115e106?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            website = "www.saboressaludables.com.ar"
-        ),
-        Emprendedor(
-            id = 3,
-            name = "Moda Circular",
-            bio = "Ropa curada y reciclada para extender la vida útil de cada prenda.",
-            location = "A 10 km",
-            image = "https://plus.unsplash.com/premium_photo-1714347049254-9ab68ae6a8df?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            website = "www.modacircular.com.ar"
-        ),
-        Emprendedor(
-            id = 4,
-            name = "Cosmética Viva",
-            bio = "Línea de cosmética natural y sustentable elaborada a pequeña escala.",
-            location = "A 6 km",
-            image = "https://images.unsplash.com/photo-1624454002302-36b824d7bd0a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            website = "www.cosmeticaviva.com.ar"
-        )
-    )
+/**
+ * Orquesta la sincronización entre Room (cache local) y Retrofit (mock server).
+ * Todas las pantallas consumen los flows expuestos acá para recibir datos reactivos.
+ */
+object EmprendimientoRepository {
+    private lateinit var api: EmprendimientoApiService
+    private lateinit var dao: EmprendimientoDao
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val emprendimientos = mutableListOf(
-        Emprendimiento(
-            id = 1,
-            name = "Caja de pastelería saludable",
-            description = "Selección de mini tortas sin azúcar procesada, ideales para regalar.",
-            image = "https://images.unsplash.com/photo-1534432182912-63863115e106?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            category = "Pastelería",
-            emprendedor = emprendedores[1]
-        ),
-        Emprendimiento(
-            id = 2,
-            name = "Tarta integral de frutos rojos",
-            description = "Base de harina integral rellena con frutos frescos de estación.",
-            image = "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlldCUyMGRlc3NlcnR8ZW58MHx8MHx8fDA%3D",
-            category = "Pastelería",
-            emprendedor = emprendedores[1]
-        ),
-        Emprendimiento(
-            id = 3,
-            name = "Set de mate de cerámica",
-            description = "Incluye mate, cucharita y platito esmaltados en tonos pastel.",
-            image = "https://plus.unsplash.com/premium_photo-1706115464365-a82276f7e7b4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            category = "Cerámica",
-            emprendedor = emprendedores[0]
-        ),
-        Emprendimiento(
-            id = 4,
-            name = "Platos irregulares esmaltados",
-            description = "Juego de dos platos medianos, aptos para lavavajillas.",
-            image = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2VyYW1pY3N8ZW58MHx8MHx8fDA%3D",
-            category = "Cerámica",
-            emprendedor = emprendedores[0]
-        ),
-        Emprendimiento(
-            id = 5,
-            name = "Kit cápsula de verano",
-            description = "Camisa oversize + short de lino recuperado, edición limitada.",
-            image = "https://plus.unsplash.com/premium_photo-1714347049254-9ab68ae6a8df?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            category = "Ropa",
-            emprendedor = emprendedores[2]
-        ),
-        Emprendimiento(
-            id = 6,
-            name = "Rutina facial botánica",
-            description = "Limpiador suave, tónico hidratante y sérum reparador.",
-            image = "https://images.unsplash.com/photo-1624454002302-36b824d7bd0a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            category = "Cosmética",
-            emprendedor = emprendedores[3]
-        ),
-        Emprendimiento(
-            id = 7,
-            name = "Roll-on relajante",
-            description = "Blend de aceites esenciales para llevar siempre encima.",
-            image = "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8YXJvbWF0aGVyYXB5fGVufDB8fDB8fHww",
-            category = "Cosmética",
-            emprendedor = emprendedores[3]
-        )
-    )
+    /**
+     * Inicializa LAZY la BD y el cliente HTTP.
+     * Se llama desde Application para que el repo quede listo apenas arranca la app.
+     */
+    fun initialize(context: Context) {
+        if (::dao.isInitialized && ::api.isInitialized) return
 
-    fun getEmprendimientos(): List<Emprendimiento> {
-        return emprendimientos
-    }
+        val database = Room.databaseBuilder(
+            context.applicationContext,
+            ManosLocalesDatabase::class.java,
+            "manos_locales.db"
+        ).build()
 
-    fun getEmprendimientosFiltrados(searchQuery: String): List<Emprendimiento> {
-        return if (searchQuery.isBlank()) {
-            getEmprendimientos()
-        } else {
-            getEmprendimientos().filter {
-                it.name.contains(searchQuery, ignoreCase = true) ||
-                        it.category.contains(searchQuery, ignoreCase = true) ||
-                        it.emprendedor.name.contains(searchQuery, ignoreCase = true)
+        dao = database.emprendimientoDao()
+        api = NetworkModule.createEmprendimientoApi()
+
+        scope.launch {
+            if (dao.count() == 0) {
+                refreshEmprendimientos()
             }
         }
     }
 
-    fun getEmprendimientoById(emprendimientoId: Int): Emprendimiento? {
-        return getEmprendimientos().find { it.id == emprendimientoId }
+    /** Flujos reactivos usados en Home. */
+    fun observeEmprendimientos(): Flow<List<Emprendimiento>> =
+        dao.observeEmprendimientos().map { entities ->
+            entities.toDomainList()
+        }
+
+    fun observeFavorites(): Flow<List<Emprendimiento>> =
+        dao.observeFavorites().map { entities ->
+            entities.toDomainList()
+        }
+
+    fun observeFiltered(query: String): Flow<List<Emprendimiento>> =
+        dao.observeFiltered(query).map { entities ->
+            entities.toDomainList()
+        }
+
+    fun observeEmprendimiento(emprendimientoId: Int): Flow<Emprendimiento?> =
+        dao.observeById(emprendimientoId).map { it?.toDomain() }
+
+    /** Devuelve los emprendimientos del mismo emprendedor para la sección "Otros productos". */
+    fun observeEmprendimientosDelEmprendedor(
+        emprendedorId: Int,
+        excludeEmprendimientoId: Int? = null
+    ): Flow<List<Emprendimiento>> =
+        dao.observeByEmprendedor(emprendedorId, excludeEmprendimientoId).map { list ->
+            list.toDomainList()
+        }
+
+    /** Fuerza un refresh completo desde el mock server y lo guarda en Room. */
+    suspend fun refreshEmprendimientos() = withContext(Dispatchers.IO) {
+        val remoteEmprendimientos = api.getEmprendimientos()
+        dao.insertAll(remoteEmprendimientos.map { it.toEntity() })
     }
 
-    fun getFavs(): List<Emprendimiento>{
-        return getEmprendimientos().filter { it.isFav }
+    /** Refresca solo un detalle para evitar traer toda la lista de nuevo. */
+    suspend fun refreshEmprendimiento(emprendimientoId: Int) = withContext(Dispatchers.IO) {
+        val remoto = api.getEmprendimiento(emprendimientoId)
+        dao.insertAll(listOf(remoto.toEntity()))
     }
 
-    fun setFav(emprendimientoId: Int){
-        val emprendimiento = getEmprendimientoById(emprendimientoId) ?: return
-        emprendimiento.isFav = !emprendimiento.isFav
-    }
+    /**
+     * Alterna el favorito en Room para feedback instantáneo y lo replica en el mock server.
+     * Si el PATCH remoto falla se ignora (la próxima sync lo corrige).
+     */
+    suspend fun setFav(emprendimientoId: Int) = withContext(Dispatchers.IO) {
+        val current = dao.getById(emprendimientoId) ?: return@withContext
+        val newValue = !current.isFav
+        dao.updateFavorite(emprendimientoId, newValue)
 
-    fun getEmprendimientosDelEmprendedor(emprendedorId: Int, excludeEmprendimientoId: Int? = null): List<Emprendimiento> {
-        return getEmprendimientos().filter { emprendimiento ->
-            emprendimiento.emprendedor.id == emprendedorId && emprendimiento.id != excludeEmprendimientoId
+        scope.launch {
+            runCatching {
+                api.updateFavorite(
+                    emprendimientoId,
+                    mapOf("isFav" to newValue)
+                )
+            }
         }
     }
+
+    private fun List<EmprendimientoEntity>.toDomainList(): List<Emprendimiento> =
+        map { it.toDomain() }
 }

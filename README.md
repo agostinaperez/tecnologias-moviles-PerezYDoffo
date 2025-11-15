@@ -25,6 +25,17 @@ Manos Locales es una aplicación Android desarrollada con Kotlin que utiliza Jet
 
     Jetpack Compose: Interfaz de usuario moderna y declarativa.
     Coil: Carga eficiente de imágenes.
+    Retrofit + Moshi: Consumo de la API mock levantada con json-server.
+    Room + Coroutines: Persistencia local y reactividad del listado/favoritos.
+
+🗄 Mock server y persistencia
+
+La carpeta `mock_server/` incluye una base `db.json` compatible con `json-server`. Se levanta con:
+
+cd mock_server
+json-server --watch db.json --port 3000
+
+La app apunta a http://10.0.2.2:3000/ por defecto (localhost visto desde el emulador). Hay que tener el servidor corriendo antes de abrir la app para que Retrofit pueda sincronizar Room con los últimos datos!!
 
 🛠 Configuración del proyecto
 

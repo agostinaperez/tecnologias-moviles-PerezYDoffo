@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,10 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -31,32 +30,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
-import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
-
+import com.undef.PerezLopezyDoffoTP.ui.viewModels.EmprendimientoDetailViewModel
 
 @Composable
 fun EmprendimientoDetailScreen(emprendimientoId: Int, navController: NavHostController) {
-    BackBar(navController){ paddingValues ->
+    val detailViewModel: EmprendimientoDetailViewModel = viewModel(
+        factory = EmprendimientoDetailViewModel.provideFactory(emprendimientoId)
+    )
+    val emprendimiento by detailViewModel.emprendimiento.collectAsStateWithLifecycle()
+    val otrosProductos by detailViewModel.otrosProductos.collectAsStateWithLifecycle()
+
+    BackBar(
+        navController = navController,
+        onBack = {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Home.route) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            EmprendimientoDetail(emprendimientoId = emprendimientoId, navController)
+            EmprendimientoDetail(
+                emprendimiento = emprendimiento,
+                otrosProductos = otrosProductos,
+                onToggleFavorite = { detailViewModel.toggleFavorite() },
+                navController = navController
+            )
         }
     }
 }
 
 @Composable
-fun EmprendimientoDetail(emprendimientoId: Int, navController: NavHostController) {
-    val emprendimiento = EmprendimientoRepository.getEmprendimientoById(emprendimientoId)
-
+fun EmprendimientoDetail(
+    emprendimiento: Emprendimiento?,
+    otrosProductos: List<Emprendimiento>,
+    onToggleFavorite: () -> Unit,
+    navController: NavHostController
+) {
     if (emprendimiento == null) {
         Column(
             modifier = Modifier
@@ -78,16 +100,12 @@ fun EmprendimientoDetail(emprendimientoId: Int, navController: NavHostController
     }
 
     val emprendedor = emprendimiento.emprendedor
-    val otrosProductos = EmprendimientoRepository.getEmprendimientosDelEmprendedor(
-        emprendedor.id,
-        excludeEmprendimientoId = emprendimiento.id
-    )
-    var isFav by remember(emprendimiento.id) { mutableStateOf(emprendimiento.isFav) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         // Imagen destacada
         Image(
@@ -160,16 +178,13 @@ fun EmprendimientoDetail(emprendimientoId: Int, navController: NavHostController
 
         // Botón para agregar a favoritos
         OutlinedButton(
-            onClick = {
-                EmprendimientoRepository.setFav(emprendimientoId)
-                isFav = !isFav
-            },
+            onClick = onToggleFavorite,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
         ) {
-            if (!isFav) {
+            if (!emprendimiento.isFav) {
                 Text(
                     text = "Agregar a Favoritos",
                     style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.primary)

@@ -11,13 +11,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
@@ -45,7 +45,7 @@ fun HomeScreen(navController: NavController) {
 @Composable
 fun Home(modifier: Modifier, homeViewModel: HomeViewModel, navController: NavController) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    val emprendimientos by homeViewModel.emprendimientos.observeAsState(listOf())
+    val emprendimientos by homeViewModel.emprendimientos.collectAsStateWithLifecycle()
 
     LazyColumn(modifier = modifier) {
         item {
