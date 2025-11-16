@@ -30,30 +30,28 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.LoginViewModel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewLoginScreen() {
-    LoginScreen(navController = rememberNavController())
+    LoginScreen(navController = rememberNavController(), loginViewModel = LoginViewModel())
 }
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    val viewModel = LoginViewModel()
+fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
     Box(
         modifier = Modifier
             .background(Color.White)
             .padding(horizontal = 15.dp)
     ) {
-        Login(modifier = Modifier.fillMaxWidth(), viewModel, navController)
+        Login(modifier = Modifier.fillMaxWidth(), loginViewModel, navController)
     }
 }
 
@@ -63,18 +61,23 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
     val password: String by viewModel.password.observeAsState(initial = "")
     val loginEnable: Boolean by viewModel.loginEnable.observeAsState(initial = false)
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
+    val loginSuccess: Boolean by viewModel.loginSuccess.observeAsState(initial = false)
+    val errorMessage: String? by viewModel.errorMessage.observeAsState()
+
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Login.route) {
+                    inclusive = true
+                }
+            }
+            viewModel.onLoginConsumed()
+        }
+    }
+
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            LaunchedEffect(Unit) {
-                delay(1500)
-                navController.navigate(Screen.Home.route){
-                    popUpTo(Screen.Login.route){
-                        inclusive = true
-                    }
-                }
-                viewModel.resetLoading()
-            }
         }
     } else {
         Column(modifier = modifier) {
@@ -90,6 +93,14 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
             FieldPassword(password) { viewModel.onLoginChanged(email, it) }
 
             TextRegister(modifier = Modifier.align(Alignment.Start), navController)
+
+            if (!errorMessage.isNullOrEmpty()) {
+                Text(
+                    text = errorMessage ?: "",
+                    color = Color.Red,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
 
             ButtonLogin(loginEnable) {
                 viewModel.onLoginSelected()

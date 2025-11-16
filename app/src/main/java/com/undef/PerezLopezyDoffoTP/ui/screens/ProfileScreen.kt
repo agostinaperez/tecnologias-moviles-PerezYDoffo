@@ -22,12 +22,16 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,46 +39,120 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
-import com.undef.PerezLopezyDoffoTP.ui.components.BottomNavBar
 import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
+import com.undef.PerezLopezyDoffoTP.ui.viewModels.ProfileViewModel
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 @Composable
 fun ProfileScreen(navController: NavController) {
+    val viewModel: ProfileViewModel = viewModel()
+    val user by viewModel.user.observeAsState()
+    val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
+    val errorMessage: String? by viewModel.errorMessage.observeAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(Unit) {
+        viewModel.loadUser()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.loadUser()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     MainScaffold(navController = navController) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(15.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            contentAlignment = Alignment.Center
         ) {
-            Profile(modifier = Modifier, navController)
+            when {
+                isLoading -> {
+                    CircularProgressIndicator()
+                }
+                !errorMessage.isNullOrEmpty() -> {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = Color.Red
+                    )
+                }
+                user == null -> {
+                    ProfileEmptyState {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    }
+                }
+                else -> {
+                    Profile(
+                        modifier = Modifier,
+                        username = user?.username.orEmpty(),
+                        email = user?.email.orEmpty(),
+                        onEditProfile = { navController.navigate(Screen.EditProfile.route) },
+                        onOpenSettings = { navController.navigate(Screen.Settings.route) },
+                        onLogout = {
+                            viewModel.logout()
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun Profile(modifier: Modifier, navController: NavController) {
+fun Profile(
+    modifier: Modifier,
+    username: String,
+    email: String,
+    onEditProfile: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onLogout: () -> Unit
+) {
     ProfileImage(modifier = modifier)
-    Username(modifier = modifier)
+    Username(modifier = modifier, username = username)
     Spacer(modifier = Modifier.height(30.dp))
-    Mail(modifier = modifier)
+    Mail(modifier = modifier, email = email)
     Spacer(modifier = Modifier.height(30.dp))
     Box(
         modifier = Modifier
             .padding(20.dp)
             .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
     ){
-        Menu(modifier = modifier, navController)
+        Menu(
+            modifier = modifier,
+            onEditProfile = onEditProfile,
+            onOpenSettings = onOpenSettings,
+            onLogout = onLogout
+        )
     }
 }
 
 @Composable
-fun Menu(modifier: Modifier, navController: NavController){
+fun Menu(
+    modifier: Modifier,
+    onEditProfile: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onLogout: () -> Unit
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -83,17 +161,13 @@ fun Menu(modifier: Modifier, navController: NavController){
         MenuItem(
             icon = Icons.Default.Edit,
             text = "Edit Profile",
-            onClick = {
-                navController.navigate(Screen.EditProfile.route)
-            }
+            onClick = onEditProfile
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         MenuItem(
             icon = Icons.Default.Settings,
             text = "Settings",
-            onClick = {
-                navController.navigate(Screen.Settings.route)
-            }
+            onClick = onOpenSettings
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         MenuItem(
@@ -101,9 +175,7 @@ fun Menu(modifier: Modifier, navController: NavController){
             text = "Logout",
             textColor = Color.Red,
             iconColor = Color.Red,
-            onClick = {
-                navController.navigate(Screen.Splash.route)
-            },
+            onClick = onLogout,
             showArrow = false
         )
     }
@@ -159,7 +231,6 @@ fun ProfileImage(modifier: Modifier) {
     Box(
         modifier = modifier
             .size(120.dp),
-        //.border(2.dp, Color.Gray, CircleShape),
         contentAlignment = Alignment.BottomEnd,
     ){
         Image(painter = painterResource(id = R.drawable.blank_profile_pic),
@@ -167,7 +238,6 @@ fun ProfileImage(modifier: Modifier) {
             modifier = modifier
                 .size(120.dp)
                 .clip(shape = CircleShape)
-            //.border(2.dp, Color.Gray, CircleShape),
         )
         Icon(
             imageVector = Icons.Default.Edit,
@@ -183,9 +253,9 @@ fun ProfileImage(modifier: Modifier) {
 }
 
 @Composable
-fun Username(modifier: Modifier) {
+fun Username(modifier: Modifier, username: String) {
     Text(
-        text = "Username",
+        text = username,
         modifier = modifier
             .padding(top = 10.dp),
         color = Color.Black,
@@ -194,7 +264,7 @@ fun Username(modifier: Modifier) {
 }
 
 @Composable
-fun Mail(modifier: Modifier){
+fun Mail(modifier: Modifier, email: String){
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
@@ -202,8 +272,31 @@ fun Mail(modifier: Modifier){
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
-            text = "tucorreo@gmail.com",
+            text = email,
             color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun ProfileEmptyState(onNavigateToLogin: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Necesitás iniciar sesión para ver tu perfil.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Ir a Login",
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF1E88E5))
+                .clickable { onNavigateToLogin() }
+                .padding(horizontal = 24.dp, vertical = 10.dp),
+            color = Color.White
         )
     }
 }

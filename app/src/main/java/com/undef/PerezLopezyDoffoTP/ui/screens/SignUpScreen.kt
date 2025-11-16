@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.SignUpViewModel
-import kotlinx.coroutines.delay
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.font.FontWeight
@@ -36,16 +35,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewSignUpScreen() {
-    SignUpScreen(navController = rememberNavController())
+    SignUpScreen(navController = rememberNavController(), signUpViewModel = SignUpViewModel())
 }
 
 @Composable
-fun SignUpScreen(navController: NavController){
-    val viewModel = SignUpViewModel()
+fun SignUpScreen(navController: NavController, signUpViewModel: SignUpViewModel = viewModel()){
     BackBar(navController){ paddingValues ->
         Box(
             modifier = Modifier
@@ -53,7 +52,7 @@ fun SignUpScreen(navController: NavController){
                 .padding(paddingValues)
                 .padding(16.dp, 0.dp)
         ) {
-            SignUp(modifier = Modifier.fillMaxWidth(), viewModel, navController)
+            SignUp(modifier = Modifier.fillMaxWidth(), signUpViewModel, navController)
         }
     }
 }
@@ -64,18 +63,23 @@ fun SignUp(modifier: Modifier, viewModel: SignUpViewModel, navController: NavCon
     val username: String by viewModel.username.observeAsState(initial = "")
     val loginEnable: Boolean by viewModel.loginEnable.observeAsState(initial = false)
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
+    val signUpSuccess: Boolean by viewModel.signUpSuccess.observeAsState(initial = false)
+    val errorMessage: String? by viewModel.errorMessage.observeAsState()
+
+    LaunchedEffect(signUpSuccess) {
+        if (signUpSuccess) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.SignUp.route) {
+                    inclusive = true
+                }
+            }
+            viewModel.onSignUpConsumed()
+        }
+    }
+
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            LaunchedEffect(Unit) {
-                delay(1500)
-                navController.navigate(Screen.Home.route){
-                    popUpTo(Screen.SignUp.route){
-                        inclusive = true
-                    }
-                }
-                viewModel.resetLoading()
-            }
         }
     } else {
         Column(modifier = modifier) {
@@ -91,6 +95,14 @@ fun SignUp(modifier: Modifier, viewModel: SignUpViewModel, navController: NavCon
             FieldEmail(email) { viewModel.onSignUpChanged(it, password, username) }
 
             FieldPassword(password) { viewModel.onSignUpChanged(email, it, username) }
+
+            if (!errorMessage.isNullOrEmpty()) {
+                Text(
+                    text = errorMessage ?: "",
+                    color = Color.Red,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
 
             ButtonSignUp(loginEnable) {
                 viewModel.onSignUpSelected()

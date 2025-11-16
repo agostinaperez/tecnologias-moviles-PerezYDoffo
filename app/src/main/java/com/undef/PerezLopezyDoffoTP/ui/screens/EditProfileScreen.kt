@@ -1,6 +1,5 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
-import androidx.compose.material3.TextField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,15 +14,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -31,20 +32,25 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
-import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
+import com.undef.PerezLopezyDoffoTP.ui.viewModels.EditProfileViewModel
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewEditProfileScreen(){
-    EditProfileScreen(navController = rememberNavController())
+    EditProfileScreen(navController = rememberNavController(), viewModel = EditProfileViewModel())
 }
 
 @Composable
-fun EditProfileScreen(navController: NavController){
+fun EditProfileScreen(
+    navController: NavController,
+    viewModel: EditProfileViewModel = viewModel()
+) {
     BackBar(navController){ paddingValues ->
         Column (
             modifier = Modifier
@@ -52,18 +58,24 @@ fun EditProfileScreen(navController: NavController){
                 .padding(paddingValues)
                 .padding(16.dp),
         ){
-            EditProfile(modifier = Modifier, navController)
+            EditProfile(modifier = Modifier, navController, viewModel)
         }
     }
 }
 
 @Composable
-fun EditProfile(modifier: Modifier, navController: NavController){
-    var emailState by remember { mutableStateOf("user@gmail.com") }
-    var usernameState by remember { mutableStateOf("username") }
-    var passwordState by remember { mutableStateOf("pass123") }
+fun EditProfile(modifier: Modifier, navController: NavController, viewModel: EditProfileViewModel){
+    val uiState by viewModel.uiState.collectAsState()
 
-    
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(Screen.Profile.route) {
+                popUpTo(Screen.Profile.route) { inclusive = true }
+            }
+            viewModel.consumeSuccess()
+        }
+    }
+
     Text(text = "Edit Profile", fontSize = 24.sp, fontWeight = FontWeight.Bold)
     Box(
         modifier = modifier
@@ -82,14 +94,31 @@ fun EditProfile(modifier: Modifier, navController: NavController){
             ){
                 ProfileImage(modifier = modifier.padding(40.dp, 0.dp).size(200.dp))
             }
-            EditParameter(modifier = modifier, emailState, "Email") { newEmail ->
-                emailState = newEmail
-            }
-            EditParameter(modifier = modifier, usernameState, "Username") { newUsername ->
-                usernameState = newUsername
-            }
-            EditParameter(modifier = modifier, passwordState, "Password") { newPassword ->
-                passwordState = newPassword
+            EditParameter(
+                modifier = modifier,
+                input = uiState.username,
+                label = "Username",
+                onInputChange = viewModel::onUsernameChanged
+            )
+            EditParameter(
+                modifier = modifier,
+                input = uiState.email,
+                label = "Email",
+                onInputChange = viewModel::onEmailChanged
+            )
+            EditParameter(
+                modifier = modifier,
+                input = uiState.password,
+                label = "Password",
+                onInputChange = viewModel::onPasswordChanged,
+                isPassword = true
+            )
+            if (!uiState.errorMessage.isNullOrEmpty()) {
+                Text(
+                    text = uiState.errorMessage ?: "",
+                    color = Color.Red,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
             }
             Spacer(modifier = Modifier.height(30.dp))
             Box(
@@ -114,9 +143,7 @@ fun EditProfile(modifier: Modifier, navController: NavController){
                         Text(text = "Cancel")
                     }
                     Button(
-                        onClick = {
-                            navController.navigate(Screen.Profile.route)
-                        },
+                        onClick = viewModel::saveChanges,
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(160.dp),
@@ -127,6 +154,15 @@ fun EditProfile(modifier: Modifier, navController: NavController){
                 }
             }
         }
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
 }
 
@@ -135,10 +171,9 @@ fun EditParameter(
     modifier: Modifier,
     input: String,
     label: String,
-    onInputChange: (String) -> Unit
+    onInputChange: (String) -> Unit,
+    isPassword: Boolean = false
 ) {
-    val passwordLabel = "Password"
-
     TextField(
         value = input,
         onValueChange = onInputChange,
@@ -153,8 +188,7 @@ fun EditParameter(
             capitalization = KeyboardCapitalization.None,
             autoCorrectEnabled = false
         ),
-        visualTransformation = if (label == passwordLabel ) PasswordVisualTransformation() else VisualTransformation.None,
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
     )
 }
-
 
