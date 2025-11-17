@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 import com.undef.PerezLopezyDoffoTP.repository.UserRepository
 import kotlinx.coroutines.launch
 
@@ -14,6 +15,9 @@ class LoginViewModel: ViewModel() {
 
     private val _password = MutableLiveData<String>()
     val password: LiveData<String> = _password
+
+    private val _rememberMe = MutableLiveData<Boolean>()
+    val rememberMe: LiveData<Boolean> = _rememberMe
 
     private val _loginEnable = MutableLiveData<Boolean>()
     val loginEnable: LiveData<Boolean> = _loginEnable
@@ -27,25 +31,41 @@ class LoginViewModel: ViewModel() {
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
+    init {
+        val remembered = UserRepository.getRememberedCredentials()
+        if (remembered != null) {
+            _email.value = remembered.email
+            _password.value = remembered.password
+            _rememberMe.value = true
+            _loginEnable.value = isValidEmail(remembered.email) && remembered.password.isNotBlank()
+        } else {
+            _rememberMe.value = false
+        }
+    }
+
     fun onLoginChanged(email: String, password: String) {
         _email.value = email
         _password.value = password
-        _loginEnable.value = isValidEmail(email) && isValidPassword(password)
+        _loginEnable.value = isValidEmail(email) && password.isNotBlank()
+    }
+
+    fun onRememberMeChanged(checked: Boolean) {
+        _rememberMe.value = checked
     }
 
     private fun isValidEmail(email: String): Boolean = Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    private fun isValidPassword(password: String): Boolean = password.length > 6
-
     fun onLoginSelected() {
         val currentEmail = _email.value.orEmpty()
         val currentPassword = _password.value.orEmpty()
+        val remember = _rememberMe.value.orFalse()
         if (!_loginEnable.value.orFalse()) return
 
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
             runCatching {
-                UserRepository.login(currentEmail, currentPassword)
+                val user = UserRepository.login(currentEmail, currentPassword, remember)
+                EmprendimientoRepository.syncFavoritesForUser(user.id)
             }.onSuccess {
                 _loginSuccess.value = true
             }.onFailure { error ->

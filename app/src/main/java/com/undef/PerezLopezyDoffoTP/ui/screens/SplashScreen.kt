@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.undef.PerezLopezyDoffoTP.R
-import com.undef.PerezLopezyDoffoTP.repository.UserRepository
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import kotlinx.coroutines.delay
 
@@ -47,11 +46,7 @@ fun SplashScreen(navController: NavController) {
         delay(3000)
         isVisible = false
         delay(350)
-        val destination = if (UserRepository.hasSession()) {
-            Screen.Home.route
-        } else {
-            Screen.Login.route
-        }
+        val destination = Screen.Login.route
         navController.navigate(destination) {
             popUpTo(Screen.Splash.route) { inclusive = true }
         }

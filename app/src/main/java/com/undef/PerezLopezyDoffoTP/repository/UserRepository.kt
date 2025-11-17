@@ -12,10 +12,13 @@ import java.security.MessageDigest
 
 object UserRepository {
     private const val PREFS_NAME = "user_session"
-    private const val KEY_USER_ID = "current_user_id"
+    private const val KEY_REMEMBER_EMAIL = "remember_email"
+    private const val KEY_REMEMBER_PASSWORD = "remember_password"
+    private const val KEY_REMEMBER_ENABLED = "remember_enabled"
 
     private lateinit var api: UserApiService
     private lateinit var prefs: SharedPreferences
+    private var currentUserId: Int? = null
 
     fun initialize(context: Context) {
         if (::api.isInitialized && ::prefs.isInitialized) return
@@ -23,12 +26,13 @@ object UserRepository {
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
-    suspend fun login(email: String, password: String): User = withContext(Dispatchers.IO) {
+    suspend fun login(email: String, password: String, rememberMe: Boolean): User =
+        withContext(Dispatchers.IO) {
         val remoteUsers = api.getUsers(email = email)
         val hashedPassword = hash(password)
         val user = remoteUsers.firstOrNull { it.passwordHash == hashedPassword }
             ?: throw IllegalArgumentException("Credenciales inválidas")
-        saveSession(user.id)
+        saveSession(user.id, rememberMe, email, password)
         user
     }
 
@@ -44,7 +48,7 @@ object UserRepository {
                 passwordHash = hash(password)
             )
             val created = api.createUser(request)
-            saveSession(created.id)
+            saveSession(created.id, rememberMe = false, email = email, password = password)
             created
         }
 
@@ -68,22 +72,48 @@ object UserRepository {
         api.getUser(userId)
     }
 
-    fun hasSession(): Boolean = getCurrentUserId() != null
+    fun getCurrentUserId(): Int? = currentUserId
 
-    fun getCurrentUserId(): Int? {
-        if (!::prefs.isInitialized) return null
-        val storedId = prefs.getInt(KEY_USER_ID, -1)
-        return if (storedId == -1) null else storedId
-    }
-
-    fun logout() {
+    fun logout(clearRememberedCredentials: Boolean = false) {
+        currentUserId = null
         if (!::prefs.isInitialized) return
-        prefs.edit().remove(KEY_USER_ID).apply()
+        if (clearRememberedCredentials) {
+            prefs.edit()
+                .putBoolean(KEY_REMEMBER_ENABLED, false)
+                .remove(KEY_REMEMBER_EMAIL)
+                .remove(KEY_REMEMBER_PASSWORD)
+                .apply()
+        }
     }
 
-    private fun saveSession(userId: Int) {
-        prefs.edit().putInt(KEY_USER_ID, userId).apply()
+    private fun saveSession(userId: Int, rememberMe: Boolean, email: String, password: String) {
+        currentUserId = userId
+        if (!::prefs.isInitialized) return
+        prefs.edit().apply {
+            if (rememberMe) {
+                putBoolean(KEY_REMEMBER_ENABLED, true)
+                putString(KEY_REMEMBER_EMAIL, email)
+                putString(KEY_REMEMBER_PASSWORD, password)
+            } else {
+                putBoolean(KEY_REMEMBER_ENABLED, false)
+                remove(KEY_REMEMBER_EMAIL)
+                remove(KEY_REMEMBER_PASSWORD)
+            }
+        }.apply()
     }
+
+    fun getRememberedCredentials(): RememberedCredentials? {
+        if (!::prefs.isInitialized) return null
+        if (!prefs.getBoolean(KEY_REMEMBER_ENABLED, false)) return null
+        val email = prefs.getString(KEY_REMEMBER_EMAIL, null) ?: return null
+        val password = prefs.getString(KEY_REMEMBER_PASSWORD, null) ?: return null
+        return RememberedCredentials(email, password)
+    }
+
+    data class RememberedCredentials(
+        val email: String,
+        val password: String
+    )
 
     private fun hash(password: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())

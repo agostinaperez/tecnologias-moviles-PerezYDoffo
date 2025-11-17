@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
 import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
+import com.undef.PerezLopezyDoffoTP.repository.UserRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -48,7 +49,8 @@ class EmprendimientoDetailViewModel(
 
     fun toggleFavorite() {
         viewModelScope.launch {
-            EmprendimientoRepository.setFav(emprendimientoId)
+            val userId = UserRepository.getCurrentUserId() ?: return@launch
+            EmprendimientoRepository.setFav(emprendimientoId, userId)
         }
     }
 

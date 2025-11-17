@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.undef.PerezLopezyDoffoTP.data.local.ManosLocalesDatabase
 import com.undef.PerezLopezyDoffoTP.data.local.dao.EmprendimientoDao
 import com.undef.PerezLopezyDoffoTP.data.local.entity.EmprendimientoEntity
+import com.undef.PerezLopezyDoffoTP.data.local.entity.UserFavoriteEntity
 import com.undef.PerezLopezyDoffoTP.data.local.entity.toDomain
 import com.undef.PerezLopezyDoffoTP.data.local.entity.toEntity
 import com.undef.PerezLopezyDoffoTP.data.model.Emprendimiento
@@ -38,7 +39,9 @@ object EmprendimientoRepository {
             context.applicationContext,
             ManosLocalesDatabase::class.java,
             "manos_locales.db"
-        ).build()
+        )
+            .addMigrations(ManosLocalesDatabase.MIGRATION_1_2)
+            .build()
 
         dao = database.emprendimientoDao()
         api = NetworkModule.createEmprendimientoApi()
@@ -82,33 +85,57 @@ object EmprendimientoRepository {
     suspend fun refreshEmprendimientos() = withContext(Dispatchers.IO) {
         val remoteEmprendimientos = api.getEmprendimientos()
         dao.insertAll(remoteEmprendimientos.map { it.toEntity() })
+        UserRepository.getCurrentUserId()?.let { applyFavoritesForUser(it) }
     }
 
     /** Refresca solo un detalle para evitar traer toda la lista de nuevo. */
     suspend fun refreshEmprendimiento(emprendimientoId: Int) = withContext(Dispatchers.IO) {
         val remoto = api.getEmprendimiento(emprendimientoId)
         dao.insertAll(listOf(remoto.toEntity()))
+        UserRepository.getCurrentUserId()?.let { applyFavoritesForUser(it) }
     }
 
     /**
      * Alterna el favorito en Room para feedback instantáneo y lo replica en el mock server.
      * Si el PATCH remoto falla se ignora (la próxima sync lo corrige).
      */
-    suspend fun setFav(emprendimientoId: Int) = withContext(Dispatchers.IO) {
+    suspend fun setFav(emprendimientoId: Int, userId: Int) = withContext(Dispatchers.IO) {
         val current = dao.getById(emprendimientoId) ?: return@withContext
-        val newValue = !current.isFav
-        dao.updateFavorite(emprendimientoId, newValue)
+        val alreadyFavorite = dao.isFavoriteForUser(userId, emprendimientoId)
+        if (alreadyFavorite) {
+            dao.deleteFavorite(userId, emprendimientoId)
+        } else {
+            dao.insertFavorite(
+                UserFavoriteEntity(
+                    userId = userId,
+                    emprendimientoId = current.id
+                )
+            )
+        }
+        dao.updateFavorite(emprendimientoId, !alreadyFavorite)
 
         scope.launch {
             runCatching {
                 api.updateFavorite(
                     emprendimientoId,
-                    mapOf("isFav" to newValue)
+                    mapOf("isFav" to !alreadyFavorite)
                 )
             }
         }
     }
 
+    suspend fun syncFavoritesForUser(userId: Int) = withContext(Dispatchers.IO) {
+        applyFavoritesForUser(userId)
+    }
+
     private fun List<EmprendimientoEntity>.toDomainList(): List<Emprendimiento> =
         map { it.toDomain() }
+
+    private suspend fun applyFavoritesForUser(userId: Int) {
+        val favoriteIds = dao.getFavoriteIds(userId)
+        dao.clearFavoriteFlags()
+        if (favoriteIds.isNotEmpty()) {
+            dao.applyFavoriteFlags(favoriteIds)
+        }
+    }
 }

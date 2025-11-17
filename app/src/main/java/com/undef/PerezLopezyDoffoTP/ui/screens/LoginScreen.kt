@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -59,6 +61,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavController) {
     val email: String by viewModel.email.observeAsState(initial = "")
     val password: String by viewModel.password.observeAsState(initial = "")
+    val rememberMe: Boolean by viewModel.rememberMe.observeAsState(initial = false)
     val loginEnable: Boolean by viewModel.loginEnable.observeAsState(initial = false)
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
     val loginSuccess: Boolean by viewModel.loginSuccess.observeAsState(initial = false)
@@ -91,6 +94,11 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
             FieldEmail(email) { viewModel.onLoginChanged(it, password) }
 
             FieldPassword(password) { viewModel.onLoginChanged(email, it) }
+
+            RememberMeOption(
+                checked = rememberMe,
+                onCheckedChange = { viewModel.onRememberMeChanged(it) }
+            )
 
             TextRegister(modifier = Modifier.align(Alignment.Start), navController)
 
@@ -172,6 +180,27 @@ fun TextRegister(modifier: Modifier, navController: NavController) {
             .clickable {
                 navController.navigate(Screen.SignUp.route)
             },)
+}
+
+@Composable
+fun RememberMeOption(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+        Text(
+            text = "Recordarme",
+            modifier = Modifier
+                .clickable { onCheckedChange(!checked) }
+                .padding(start = 8.dp)
+        )
+    }
 }
 
 @Composable

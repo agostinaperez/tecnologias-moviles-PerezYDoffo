@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 import com.undef.PerezLopezyDoffoTP.repository.UserRepository
 import kotlinx.coroutines.launch
 
@@ -55,11 +56,12 @@ class SignUpViewModel: ViewModel() {
             _errorMessage.value = null
 
             runCatching {
-                UserRepository.register(
+                val user = UserRepository.register(
                     username = usernameValue,
                     email = emailValue,
                     password = passwordValue
                 )
+                EmprendimientoRepository.syncFavoritesForUser(user.id)
             }.onSuccess {
                 _signUpSuccess.value = true
             }.onFailure { error ->
