@@ -100,6 +100,7 @@ object UserRepository {
                 remove(KEY_REMEMBER_PASSWORD)
             }
         }.apply()
+        BiometricAuthManager.saveCredentials(email, password)
     }
 
     fun getRememberedCredentials(): RememberedCredentials? {

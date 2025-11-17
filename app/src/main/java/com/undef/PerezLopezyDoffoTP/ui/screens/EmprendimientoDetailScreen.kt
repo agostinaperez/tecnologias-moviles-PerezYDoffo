@@ -1,10 +1,15 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -100,6 +106,7 @@ fun EmprendimientoDetail(
     }
 
     val emprendedor = emprendimiento.emprendedor
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -199,6 +206,13 @@ fun EmprendimientoDetail(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        ShareSection(
+            onShareGeneral = { shareEmprendimiento(context, emprendimiento) },
+            onShareWhatsApp = { shareOnWhatsApp(context, emprendimiento) }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         Text(
             text = "Otros productos de ${emprendedor.name}",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
@@ -229,6 +243,41 @@ fun EmprendimientoDetail(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ShareSection(
+    onShareGeneral: () -> Unit,
+    onShareWhatsApp: () -> Unit
+) {
+    Text(
+        text = "Compartir",
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+        text = "Contale a tus contactos sobre este emprendimiento",
+        style = MaterialTheme.typography.bodySmall,
+        color = Color.Gray
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Button(
+            onClick = onShareGeneral,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(text = "Compartir")
+        }
+        OutlinedButton(
+            onClick = onShareWhatsApp,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(text = "WhatsApp")
         }
     }
 }
@@ -266,3 +315,37 @@ private fun RelatedEmprendimientoCard(
         )
     }
 }
+
+private fun shareEmprendimiento(context: Context, emprendimiento: Emprendimiento) {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, buildShareMessage(emprendimiento))
+    }
+    context.startActivity(Intent.createChooser(intent, "Compartir emprendimiento"))
+}
+
+private fun shareOnWhatsApp(context: Context, emprendimiento: Emprendimiento) {
+    val message = buildShareMessage(emprendimiento)
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        setPackage("com.whatsapp")
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    try {
+        context.startActivity(intent)
+    } catch (error: ActivityNotFoundException) {
+        Toast.makeText(context, "WhatsApp no está instalado", Toast.LENGTH_SHORT).show()
+        val fallbackIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, message)
+        }
+        context.startActivity(Intent.createChooser(fallbackIntent, "Compartir"))
+    }
+}
+
+private fun buildShareMessage(emprendimiento: Emprendimiento): String =
+    """
+        Descubrí ${emprendimiento.name} de ${emprendimiento.emprendedor.name}.
+        ${emprendimiento.description}
+        Categoría: ${emprendimiento.category} - Contacto: ${emprendimiento.emprendedor.website}
+    """.trimIndent()

@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.androidx.biometric)
     kapt(libs.room.compiler)
     implementation(libs.coroutines.android)
     implementation(libs.androidx.lifecycle.runtime.compose)

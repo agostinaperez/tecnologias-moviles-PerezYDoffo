@@ -1,8 +1,14 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
+import android.Manifest
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.biometric.BiometricManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -20,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,15 +35,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import android.Manifest
-import android.content.Context
-import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.undef.PerezLopezyDoffoTP.repository.BiometricAuthManager
+import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.SettingsViewModel
-import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 
 
 @Preview(showBackground = true)
@@ -73,6 +79,10 @@ fun Settings(modifier: Modifier, navController: NavController, viewModel: Settin
     PreferencesSelectDropdown(viewModel, context)
     Spacer(modifier = Modifier.padding(16.dp))
     LocationPermissionSwitch(viewModel, context)
+    Spacer(modifier = Modifier.padding(16.dp))
+    BiometricLoginSwitch(viewModel, context)
+    Spacer(modifier = Modifier.padding(16.dp))
+    ContactDeveloperSection(context)
 
 }
 
@@ -209,5 +219,102 @@ fun LocationPermissionSwitch( viewModel: SettingsViewModel, context: Context) {
                 }
             }
         )
+    }
+}
+
+@Composable
+fun BiometricLoginSwitch(viewModel: SettingsViewModel, context: Context) {
+    val biometricManager = BiometricManager.from(context)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Login biométrico", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Switch(
+                checked = viewModel.isBiometricEnabled,
+                onCheckedChange = { enabled ->
+                    if (enabled) {
+                        val canAuth = biometricManager.canAuthenticate(
+                            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                                BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                        )
+                        when (canAuth) {
+                            BiometricManager.BIOMETRIC_SUCCESS -> {
+                                if (!BiometricAuthManager.hasCredentials()) {
+                                    Toast.makeText(
+                                        context,
+                                        "Iniciá sesión una vez para guardar tus credenciales",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return@Switch
+                                }
+                                viewModel.setBiometricEnabled(true)
+                                viewModel.savePreferences(context)
+                                Toast.makeText(context, "Biometría habilitada", Toast.LENGTH_SHORT).show()
+                            }
+                            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                                Toast.makeText(
+                                    context,
+                                    "Configurá un dato biométrico en ajustes del sistema",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    "Este dispositivo no soporta biometría",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    } else {
+                        viewModel.setBiometricEnabled(false)
+                        viewModel.savePreferences(context)
+                        Toast.makeText(context, "Biometría deshabilitada", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
+        }
+        Text(
+            text = "Usá tu huella o rostro para iniciar sesión más rápido.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        )
+    }
+}
+
+@Composable
+fun ContactDeveloperSection(context: Context) {
+    Text(text = "Contacto", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+    Spacer(modifier = Modifier.padding(5.dp))
+    Text(
+        text = "¿Tenés dudas o sugerencias? Escribile al equipo.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+    )
+    Spacer(modifier = Modifier.padding(8.dp))
+    Button(
+        onClick = { launchDeveloperEmailIntent(context) },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = "Contactar al desarrollador")
+    }
+}
+
+private const val DEVELOPER_EMAIL = "manoslocales.dev@gmail.com"
+
+private fun launchDeveloperEmailIntent(context: Context) {
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:")
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(DEVELOPER_EMAIL))
+        putExtra(Intent.EXTRA_SUBJECT, "Consulta sobre Manos Locales")
+        putExtra(Intent.EXTRA_TEXT, "Hola equipo de Manos Locales, tengo una consulta sobre...")
+    }
+    try {
+        context.startActivity(Intent.createChooser(intent, "Enviar correo"))
+    } catch (error: ActivityNotFoundException) {
+        Toast.makeText(context, "No hay aplicaciones de correo instaladas", Toast.LENGTH_SHORT).show()
     }
 }

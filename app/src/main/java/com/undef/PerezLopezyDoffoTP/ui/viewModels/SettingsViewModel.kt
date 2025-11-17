@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import com.undef.PerezLopezyDoffoTP.repository.BiometricAuthManager
 
 class SettingsViewModel: ViewModel() {
     // Notificaciones
@@ -24,6 +25,7 @@ class SettingsViewModel: ViewModel() {
 
     // Permissions
     var isLocationEnabled by mutableStateOf(false)
+    var isBiometricEnabled by mutableStateOf(false)
 
     fun checkLocationPermission(context: Context): Boolean{
         val fineLocationPermission = ContextCompat.checkSelfPermission(
@@ -38,6 +40,7 @@ class SettingsViewModel: ViewModel() {
         notificationsEnabled = sharedPreferences.getBoolean("notificationsEnabled", true)
         selectedPreferences.clear()
         selectedPreferences.addAll(sharedPreferences.getStringSet("selectedPreferences", emptySet()) ?: emptySet())
+        isBiometricEnabled = BiometricAuthManager.isEnabled()
     }
 
     fun savePreferences(context: Context) {
@@ -46,8 +49,14 @@ class SettingsViewModel: ViewModel() {
             putBoolean("isLocationEnabled", isLocationEnabled)
             putBoolean("notificationsEnabled", notificationsEnabled)
             putStringSet("selectedPreferences", selectedPreferences.toSet())
+            putBoolean("isBiometricEnabled", isBiometricEnabled)
             apply()
         }
+    }
+
+    fun setBiometricEnabled(enabled: Boolean) {
+        isBiometricEnabled = enabled
+        BiometricAuthManager.setEnabled(enabled)
     }
 
     /*fun requestLocationPermission(context: Context, onPermissionResult: (Boolean) -> Unit) {
