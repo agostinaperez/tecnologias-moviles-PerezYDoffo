@@ -5,12 +5,14 @@ data class User(
     val username: String,
     val email: String,
     val passwordHash: String,
-    val bio: String? = null
+    val bio: String? = null,
+    val profileImage: String? = null
 )
 
 data class CreateUserRequest(
     val username: String,
     val email: String,
     val passwordHash: String,
-    val bio: String? = null
+    val bio: String? = null,
+    val profileImage: String? = null
 )

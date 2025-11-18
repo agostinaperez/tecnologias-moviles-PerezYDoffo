@@ -13,7 +13,24 @@
         "bio": "Pastelería sin conservantes con opciones integrales y veganas.",
         "location": "A 20 km",
         "image": "https://images.unsplash.com/photo-1534432182912-63863115e106?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "website": "www.saboressaludables.com.ar"
+        "website": "www.saboressaludables.com.ar",
+        "contactMethods": [
+          {
+            "type": "WHATSAPP",
+            "label": "+54 11 5555-0101",
+            "value": "+541155550101"
+          },
+          {
+            "type": "INSTAGRAM",
+            "label": "@saboressaludables.ok",
+            "value": "https://instagram.com/saboressaludables.ok"
+          },
+          {
+            "type": "EMAIL",
+            "label": "hola@saboressaludables.com.ar",
+            "value": "hola@saboressaludables.com.ar"
+          }
+        ]
       }
     },
     {
@@ -29,7 +46,24 @@
         "bio": "Pastelería sin conservantes con opciones integrales y veganas.",
         "location": "A 20 km",
         "image": "https://images.unsplash.com/photo-1534432182912-63863115e106?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "website": "www.saboressaludables.com.ar"
+        "website": "www.saboressaludables.com.ar",
+        "contactMethods": [
+          {
+            "type": "WHATSAPP",
+            "label": "+54 11 5555-0101",
+            "value": "+541155550101"
+          },
+          {
+            "type": "INSTAGRAM",
+            "label": "@saboressaludables.ok",
+            "value": "https://instagram.com/saboressaludables.ok"
+          },
+          {
+            "type": "EMAIL",
+            "label": "hola@saboressaludables.com.ar",
+            "value": "hola@saboressaludables.com.ar"
+          }
+        ]
       }
     },
     {
@@ -45,7 +79,24 @@
         "bio": "Piezas hechas a mano con terminaciones suaves y resistentes.",
         "location": "A 3 km",
         "image": "https://plus.unsplash.com/premium_photo-1706115464365-a82276f7e7b4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "website": "www.ceramicabysofi.com.ar"
+        "website": "www.ceramicabysofi.com.ar",
+        "contactMethods": [
+          {
+            "type": "PHONE",
+            "label": "+54 9 11 2345-8877",
+            "value": "+5491123458877"
+          },
+          {
+            "type": "INSTAGRAM",
+            "label": "@ceramicabysofi",
+            "value": "https://instagram.com/ceramicabysofi"
+          },
+          {
+            "type": "WEBSITE",
+            "label": "Catálogo online",
+            "value": "https://ceramicabysofi.com.ar"
+          }
+        ]
       }
     },
     {
@@ -61,7 +112,24 @@
         "bio": "Piezas hechas a mano con terminaciones suaves y resistentes.",
         "location": "A 3 km",
         "image": "https://plus.unsplash.com/premium_photo-1706115464365-a82276f7e7b4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "website": "www.ceramicabysofi.com.ar"
+        "website": "www.ceramicabysofi.com.ar",
+        "contactMethods": [
+          {
+            "type": "PHONE",
+            "label": "+54 9 11 2345-8877",
+            "value": "+5491123458877"
+          },
+          {
+            "type": "INSTAGRAM",
+            "label": "@ceramicabysofi",
+            "value": "https://instagram.com/ceramicabysofi"
+          },
+          {
+            "type": "WEBSITE",
+            "label": "Catálogo online",
+            "value": "https://ceramicabysofi.com.ar"
+          }
+        ]
       }
     },
     {
@@ -77,7 +145,24 @@
         "bio": "Ropa curada y reciclada para extender la vida útil de cada prenda.",
         "location": "A 10 km",
         "image": "https://plus.unsplash.com/premium_photo-1714347049254-9ab68ae6a8df?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "website": "www.modacircular.com.ar"
+        "website": "www.modacircular.com.ar",
+        "contactMethods": [
+          {
+            "type": "INSTAGRAM",
+            "label": "@modacircular",
+            "value": "https://instagram.com/modacircular"
+          },
+          {
+            "type": "WHATSAPP",
+            "label": "+54 11 9965-2210",
+            "value": "+541199652210"
+          },
+          {
+            "type": "EMAIL",
+            "label": "hola@modacircular.com.ar",
+            "value": "hola@modacircular.com.ar"
+          }
+        ]
       }
     },
     {
@@ -93,7 +178,24 @@
         "bio": "Línea de cosmética natural y sustentable elaborada a pequeña escala.",
         "location": "A 6 km",
         "image": "https://images.unsplash.com/photo-1624454002302-36b824d7bd0a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "website": "www.cosmeticaviva.com.ar"
+        "website": "www.cosmeticaviva.com.ar",
+        "contactMethods": [
+          {
+            "type": "WHATSAPP",
+            "label": "+54 11 4477-9090",
+            "value": "+541144779090"
+          },
+          {
+            "type": "INSTAGRAM",
+            "label": "@cosmeticaviva",
+            "value": "https://instagram.com/cosmeticaviva"
+          },
+          {
+            "type": "EMAIL",
+            "label": "hola@cosmeticaviva.com.ar",
+            "value": "hola@cosmeticaviva.com.ar"
+          }
+        ]
       }
     },
     {
@@ -109,7 +211,24 @@
         "bio": "Línea de cosmética natural y sustentable elaborada a pequeña escala.",
         "location": "A 6 km",
         "image": "https://images.unsplash.com/photo-1624454002302-36b824d7bd0a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "website": "www.cosmeticaviva.com.ar"
+        "website": "www.cosmeticaviva.com.ar",
+        "contactMethods": [
+          {
+            "type": "WHATSAPP",
+            "label": "+54 11 4477-9090",
+            "value": "+541144779090"
+          },
+          {
+            "type": "INSTAGRAM",
+            "label": "@cosmeticaviva",
+            "value": "https://instagram.com/cosmeticaviva"
+          },
+          {
+            "type": "EMAIL",
+            "label": "hola@cosmeticaviva.com.ar",
+            "value": "hola@cosmeticaviva.com.ar"
+          }
+        ]
       }
     }
   ],
@@ -119,13 +238,15 @@
       "username": "admin",
       "email": "admin@manoslocales.com",
       "passwordHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-      "bio": "Usuario administrador para pruebas."
+      "bio": "Usuario administrador para pruebas.",
+      "profileImage": "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=900&auto=format&fit=crop"
     },
     {
       "id": "2",
       "username": "agostina11",
       "email": "agos@gmail.com",
-      "passwordHash": "739ea419b87133f66619c2bf2774f64eafea0c2e044d6cfb70adf6bb0ba57cd6"
+      "passwordHash": "739ea419b87133f66619c2bf2774f64eafea0c2e044d6cfb70adf6bb0ba57cd6",
+      "profileImage": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=900&auto=format&fit=crop"
     }
   ]
 }

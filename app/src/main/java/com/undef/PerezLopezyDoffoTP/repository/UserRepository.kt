@@ -56,7 +56,8 @@ object UserRepository {
         userId: Int,
         username: String,
         email: String,
-        password: String?
+        password: String?,
+        profileImage: String? = null
     ): User = withContext(Dispatchers.IO) {
         val updates = mutableMapOf<String, Any>(
             "username" to username,
@@ -65,6 +66,7 @@ object UserRepository {
         if (!password.isNullOrBlank()) {
             updates["passwordHash"] = hash(password)
         }
+        profileImage?.let { updates["profileImage"] = it }
         api.updateUser(userId, updates)
     }
 
@@ -100,6 +102,7 @@ object UserRepository {
                 remove(KEY_REMEMBER_PASSWORD)
             }
         }.apply()
+        BiometricAuthManager.saveCredentials(email, password)
     }
 
     fun getRememberedCredentials(): RememberedCredentials? {
@@ -114,6 +117,9 @@ object UserRepository {
         val email: String,
         val password: String
     )
+
+    fun passwordMatches(plainPassword: String, hashedPassword: String): Boolean =
+        hash(plainPassword) == hashedPassword
 
     private fun hash(password: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())

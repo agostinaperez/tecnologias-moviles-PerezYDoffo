@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.undef.PerezLopezyDoffoTP.repository.BiometricAuthManager
 import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 import com.undef.PerezLopezyDoffoTP.repository.UserRepository
 import kotlinx.coroutines.launch
@@ -31,6 +32,9 @@ class LoginViewModel: ViewModel() {
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
+    private val _biometricAvailable = MutableLiveData<Boolean>()
+    val biometricAvailable: LiveData<Boolean> = _biometricAvailable
+
     init {
         val remembered = UserRepository.getRememberedCredentials()
         if (remembered != null) {
@@ -41,6 +45,7 @@ class LoginViewModel: ViewModel() {
         } else {
             _rememberMe.value = false
         }
+        refreshBiometricAvailability()
     }
 
     fun onLoginChanged(email: String, password: String) {
@@ -59,24 +64,49 @@ class LoginViewModel: ViewModel() {
         val currentPassword = _password.value.orEmpty()
         val remember = _rememberMe.value.orFalse()
         if (!_loginEnable.value.orFalse()) return
+        loginInternal(currentEmail, currentPassword, remember)
+    }
 
+    fun loginWithBiometrics() {
+        val credentials = BiometricAuthManager.getCredentials()
+        if (!BiometricAuthManager.isEnabled() || credentials == null) {
+            _errorMessage.value = "Configurá el login biométrico en Ajustes"
+            _biometricAvailable.value = false
+            return
+        }
+        loginInternal(credentials.email, credentials.password, remember = true)
+    }
+
+    fun onLoginConsumed() {
+        _loginSuccess.value = false
+    }
+
+    fun refreshBiometricAvailability() {
+        _biometricAvailable.value =
+            BiometricAuthManager.isEnabled() && BiometricAuthManager.hasCredentials()
+    }
+
+    fun onBiometricError(message: String?) {
+        if (!message.isNullOrBlank()) {
+            _errorMessage.value = message
+        }
+    }
+
+    private fun loginInternal(email: String, password: String, remember: Boolean) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
             runCatching {
-                val user = UserRepository.login(currentEmail, currentPassword, remember)
+                val user = UserRepository.login(email, password, remember)
                 EmprendimientoRepository.syncFavoritesForUser(user.id)
             }.onSuccess {
                 _loginSuccess.value = true
+                refreshBiometricAvailability()
             }.onFailure { error ->
                 _errorMessage.value = error.message ?: "Error al iniciar sesión"
             }
             _isLoading.value = false
         }
-    }
-
-    fun onLoginConsumed() {
-        _loginSuccess.value = false
     }
 
     private fun Boolean?.orFalse(): Boolean = this ?: false

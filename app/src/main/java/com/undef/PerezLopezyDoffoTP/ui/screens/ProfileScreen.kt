@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -47,7 +48,9 @@ import com.undef.PerezLopezyDoffoTP.R
 import com.undef.PerezLopezyDoffoTP.ui.components.MainScaffold
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.ProfileViewModel
+import coil.compose.AsyncImage
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -103,6 +106,7 @@ fun ProfileScreen(navController: NavController) {
                         modifier = Modifier,
                         username = user?.username.orEmpty(),
                         email = user?.email.orEmpty(),
+                        profileImage = user?.profileImage,
                         onEditProfile = { navController.navigate(Screen.EditProfile.route) },
                         onOpenSettings = { navController.navigate(Screen.Settings.route) },
                         onLogout = {
@@ -123,32 +127,42 @@ fun Profile(
     modifier: Modifier,
     username: String,
     email: String,
+    profileImage: String?,
     onEditProfile: () -> Unit,
     onOpenSettings: () -> Unit,
     onLogout: () -> Unit
 ) {
-    ProfileImage(modifier = modifier)
-    Username(modifier = modifier, username = username)
-    Spacer(modifier = Modifier.height(30.dp))
-    Mail(modifier = modifier, email = email)
-    Spacer(modifier = Modifier.height(30.dp))
-    Box(
-        modifier = Modifier
-            .padding(20.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-    ){
-        Menu(
-            modifier = modifier,
-            onEditProfile = onEditProfile,
-            onOpenSettings = onOpenSettings,
-            onLogout = onLogout
-        )
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+        ) {
+            Menu(
+                modifier = Modifier,
+                username = username,
+                email = email,
+                profileImage = profileImage,
+                onEditProfile = onEditProfile,
+                onOpenSettings = onOpenSettings,
+                onLogout = onLogout
+            )
+        }
     }
 }
 
 @Composable
 fun Menu(
     modifier: Modifier,
+    username: String,
+    email: String,
+    profileImage: String?,
     onEditProfile: () -> Unit,
     onOpenSettings: () -> Unit,
     onLogout: () -> Unit
@@ -158,6 +172,29 @@ fun Menu(
             .fillMaxWidth()
             .background(Color(0xffebebeb), RoundedCornerShape(8.dp))
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ProfileImage(
+                modifier = Modifier.size(110.dp),
+                imageUrl = profileImage,
+                onChangePhoto = null
+            )
+            Username(
+                modifier = Modifier.padding(top = 12.dp),
+                username = username
+            )
+            if (email.isNotBlank()) {
+                Mail(
+                    modifier = Modifier.padding(top = 8.dp),
+                    email = email
+                )
+            }
+        }
+        HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         MenuItem(
             icon = Icons.Default.Edit,
             text = "Edit Profile",
@@ -227,39 +264,62 @@ fun MenuItem(
 }
 
 @Composable
-fun ProfileImage(modifier: Modifier) {
+fun ProfileImage(
+    modifier: Modifier = Modifier,
+    imageUrl: String?,
+    onChangePhoto: (() -> Unit)? = null
+) {
     Box(
         modifier = modifier
-            .size(120.dp),
-        contentAlignment = Alignment.BottomEnd,
-    ){
-        Image(painter = painterResource(id = R.drawable.blank_profile_pic),
-            contentDescription = "Profile Image",
-            modifier = modifier
-                .size(120.dp)
-                .clip(shape = CircleShape)
-        )
-        Icon(
-            imageVector = Icons.Default.Edit,
-            contentDescription = "Edit Icon",
-            modifier = Modifier
-                .size(35.dp)
-                .background(Color.Blue, CircleShape)
-                .padding(4.dp)
-                .clip(CircleShape),
-            tint = Color.White
-        )
+            .clip(CircleShape)
+            .background(Color.White)
+            .clickable(enabled = onChangePhoto != null) {
+                onChangePhoto?.invoke()
+            },
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        if (imageUrl.isNullOrBlank()) {
+            Image(
+                painter = painterResource(id = R.drawable.blank_profile_pic),
+                contentDescription = "Foto de perfil",
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Foto de perfil",
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+        if (onChangePhoto != null) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Editar foto",
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    .padding(6.dp)
+                    .clip(CircleShape),
+                tint = Color.White
+            )
+        }
     }
 }
 
 @Composable
 fun Username(modifier: Modifier, username: String) {
     Text(
-        text = username,
-        modifier = modifier
-            .padding(top = 10.dp),
+        text = "Hola, $username",
+        modifier = modifier,
         color = Color.Black,
-        style = MaterialTheme.typography.titleLarge,
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold
     )
 }
 

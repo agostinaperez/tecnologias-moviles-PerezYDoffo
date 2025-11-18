@@ -1,5 +1,7 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
+import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,9 +21,13 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,12 +39,13 @@ import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.LoginViewModel
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.content.ContextCompat
 
 @Preview(showBackground = true)
 @Composable
@@ -66,6 +73,7 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
     val loginSuccess: Boolean by viewModel.loginSuccess.observeAsState(initial = false)
     val errorMessage: String? by viewModel.errorMessage.observeAsState()
+    val biometricAvailable: Boolean by viewModel.biometricAvailable.observeAsState(initial = false)
 
     LaunchedEffect(loginSuccess) {
         if (loginSuccess) {
@@ -76,6 +84,9 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
             }
             viewModel.onLoginConsumed()
         }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.refreshBiometricAvailability()
     }
 
     if (isLoading) {
@@ -112,6 +123,10 @@ fun Login(modifier: Modifier, viewModel: LoginViewModel, navController: NavContr
 
             ButtonLogin(loginEnable) {
                 viewModel.onLoginSelected()
+            }
+            if (biometricAvailable) {
+                Spacer(modifier = Modifier.height(12.dp))
+                BiometricLoginButton(viewModel = viewModel)
             }
             Spacer(modifier = Modifier.weight(2.6F))
         }
@@ -200,6 +215,59 @@ fun RememberMeOption(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
                 .clickable { onCheckedChange(!checked) }
                 .padding(start = 8.dp)
         )
+    }
+}
+
+@Composable
+fun BiometricLoginButton(viewModel: LoginViewModel) {
+    val context = LocalContext.current
+    val activity = context as? ComponentActivity ?: return
+    val executor = remember(context) { ContextCompat.getMainExecutor(context) }
+    val promptInfo = remember {
+        val builder = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Inicio de sesión biométrico")
+            .setSubtitle("Usá tu huella o rostro para continuar")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            builder.setAllowedAuthenticators(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            builder.setDeviceCredentialAllowed(true)
+        }
+        builder.build()
+    }
+    Button(
+        onClick = {
+            val prompt = BiometricPrompt(
+                activity,
+                executor,
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        viewModel.loginWithBiometrics()
+                    }
+
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        if (errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON &&
+                            errorCode != BiometricPrompt.ERROR_USER_CANCELED &&
+                            errorCode != BiometricPrompt.ERROR_CANCELED
+                        ) {
+                            viewModel.onBiometricError(errString.toString())
+                        }
+                    }
+
+                    override fun onAuthenticationFailed() {
+                        viewModel.onBiometricError("No pudimos validar tu huella, intentalo nuevamente")
+                    }
+                }
+            )
+            prompt.authenticate(promptInfo)
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(text = "Ingresar con biometría")
     }
 }
 

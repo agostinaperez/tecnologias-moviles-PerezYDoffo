@@ -41,7 +41,8 @@ android {
 }
 
 dependencies {
-
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.foundation:foundation-layout")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -60,6 +61,7 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.androidx.biometric)
     kapt(libs.room.compiler)
     implementation(libs.coroutines.android)
     implementation(libs.androidx.lifecycle.runtime.compose)
