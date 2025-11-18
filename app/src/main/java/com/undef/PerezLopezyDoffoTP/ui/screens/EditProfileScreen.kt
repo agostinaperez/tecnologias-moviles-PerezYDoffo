@@ -1,32 +1,39 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
+import android.content.Context
+import android.net.Uri
+import android.util.Base64
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +46,9 @@ import com.undef.PerezLopezyDoffoTP.ui.components.BackBar
 import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.EditProfileViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Preview(showBackground = true)
 @Composable
@@ -64,8 +74,25 @@ fun EditProfileScreen(
 }
 
 @Composable
-fun EditProfile(modifier: Modifier, navController: NavController, viewModel: EditProfileViewModel){
+fun EditProfile(modifier: Modifier, navController: NavController, viewModel: EditProfileViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val saveEnabled = uiState.hasChanges && !uiState.isLoading
+    val pickPhotoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                val dataUri = context.encodeImageToDataUri(uri)
+                if (dataUri != null) {
+                    viewModel.onProfileImageChanged(dataUri)
+                } else {
+                    viewModel.reportImageError("No pudimos procesar la imagen seleccionada")
+                }
+            }
+        }
+    }
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
@@ -76,41 +103,107 @@ fun EditProfile(modifier: Modifier, navController: NavController, viewModel: Edi
         }
     }
 
-    Text(text = "Edit Profile", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+    val openImagePicker = {
+        pickPhotoLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            Text(
+                text = "Editar perfil",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
-            ){
-                ProfileImage(modifier = modifier.padding(40.dp, 0.dp).size(200.dp))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                ProfileImage(
+                    modifier = modifier
+                        .padding(top = 8.dp)
+                        .size(180.dp),
+                    imageUrl = uiState.profileImage,
+                    onChangePhoto = openImagePicker
+                )
             }
+            if (!uiState.profileImage.isNullOrBlank()) {
+                TextButton(
+                    onClick = viewModel::removeProfileImage,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text(text = "Quitar foto")
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Datos personales",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
             EditParameter(
                 modifier = modifier,
                 input = uiState.username,
                 label = "Username",
-                onInputChange = viewModel::onUsernameChanged
+                onInputChange = viewModel::onUsernameChanged,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    autoCorrectEnabled = true
+                )
             )
             EditParameter(
                 modifier = modifier,
                 input = uiState.email,
                 label = "Email",
-                onInputChange = viewModel::onEmailChanged
+                onInputChange = viewModel::onEmailChanged,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Email
+                )
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Seguridad",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "Completá estos campos solo si querés actualizar tu contraseña.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
             )
             EditParameter(
                 modifier = modifier,
-                input = uiState.password,
-                label = "Password",
-                onInputChange = viewModel::onPasswordChanged,
+                input = uiState.currentPassword,
+                label = "Contraseña actual",
+                onInputChange = viewModel::onCurrentPasswordChanged,
+                isPassword = true
+            )
+            EditParameter(
+                modifier = modifier,
+                input = uiState.newPassword,
+                label = "Nueva contraseña",
+                onInputChange = viewModel::onNewPasswordChanged,
+                isPassword = true
+            )
+            EditParameter(
+                modifier = modifier,
+                input = uiState.confirmPassword,
+                label = "Confirmar nueva contraseña",
+                onInputChange = viewModel::onConfirmPasswordChanged,
                 isPassword = true
             )
             if (!uiState.errorMessage.isNullOrEmpty()) {
@@ -120,38 +213,24 @@ fun EditProfile(modifier: Modifier, navController: NavController, viewModel: Edi
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(30.dp))
-            Box(
+            Button(
+                onClick = viewModel::saveChanges,
                 modifier = Modifier
-                    .height(50.dp),
-                contentAlignment = Alignment.BottomCenter
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                shape = RoundedCornerShape(8.dp),
+                enabled = saveEnabled
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Button(
-                        onClick = {
-                            navController.navigate(Screen.Profile.route)
-                        },
-                        shape = RoundedCornerShape(5.dp),
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(160.dp)
-                    ) {
-                        Text(text = "Cancel")
-                    }
-                    Button(
-                        onClick = viewModel::saveChanges,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(160.dp),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(text = "Save")
-                    }
-                }
+                Text(text = "Guardar cambios")
+            }
+            TextButton(
+                onClick = {
+                    navController.navigateUp()
+                },
+                enabled = !uiState.isLoading,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Cancelar")
             }
         }
         if (uiState.isLoading) {
@@ -172,7 +251,11 @@ fun EditParameter(
     input: String,
     label: String,
     onInputChange: (String) -> Unit,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        capitalization = KeyboardCapitalization.None,
+        autoCorrectEnabled = false
+    )
 ) {
     TextField(
         value = input,
@@ -184,11 +267,17 @@ fun EditParameter(
             .padding(5.dp)
             .padding(vertical = 10.dp)
             .clip(RoundedCornerShape(15.dp)),
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            autoCorrectEnabled = false
-        ),
+        keyboardOptions = keyboardOptions,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
     )
+}
+
+private suspend fun Context.encodeImageToDataUri(uri: Uri): String? = withContext(Dispatchers.IO) {
+    runCatching {
+        val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+        val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return@runCatching null
+        val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+        "data:$mimeType;base64,$base64"
+    }.getOrNull()
 }
 

@@ -250,7 +250,7 @@ fun BiometricLoginSwitch(viewModel: SettingsViewModel, context: Context) {
                                     ).show()
                                     return@Switch
                                 }
-                                viewModel.setBiometricEnabled(true)
+                                viewModel.updateBiometricEnabled(true)
                                 viewModel.savePreferences(context)
                                 Toast.makeText(context, "Biometría habilitada", Toast.LENGTH_SHORT).show()
                             }
@@ -270,7 +270,7 @@ fun BiometricLoginSwitch(viewModel: SettingsViewModel, context: Context) {
                             }
                         }
                     } else {
-                        viewModel.setBiometricEnabled(false)
+                        viewModel.updateBiometricEnabled(false)
                         viewModel.savePreferences(context)
                         Toast.makeText(context, "Biometría deshabilitada", Toast.LENGTH_SHORT).show()
                     }

@@ -54,7 +54,7 @@ class SettingsViewModel: ViewModel() {
         }
     }
 
-    fun setBiometricEnabled(enabled: Boolean) {
+    fun updateBiometricEnabled(enabled: Boolean) {
         isBiometricEnabled = enabled
         BiometricAuthManager.setEnabled(enabled)
     }

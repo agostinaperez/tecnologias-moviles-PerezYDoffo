@@ -40,7 +40,10 @@ object EmprendimientoRepository {
             ManosLocalesDatabase::class.java,
             "manos_locales.db"
         )
-            .addMigrations(ManosLocalesDatabase.MIGRATION_1_2)
+            .addMigrations(
+                ManosLocalesDatabase.MIGRATION_1_2,
+                ManosLocalesDatabase.MIGRATION_2_3
+            )
             .build()
 
         dao = database.emprendimientoDao()
