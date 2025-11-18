@@ -132,40 +132,37 @@ fun Profile(
     onOpenSettings: () -> Unit,
     onLogout: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
-        contentAlignment = Alignment.Center
+            .padding(top = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ProfileImage(
-            modifier = Modifier.size(140.dp),
-            imageUrl = profileImage,
-            onChangePhoto = null
-        )
-    }
-    Spacer(modifier = Modifier.height(16.dp))
-    Username(modifier = modifier, username = username)
-    Spacer(modifier = Modifier.height(30.dp))
-    Mail(modifier = modifier, email = email)
-    Spacer(modifier = Modifier.height(30.dp))
-    Box(
-        modifier = Modifier
-            .padding(20.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-    ){
-        Menu(
-            modifier = modifier,
-            onEditProfile = onEditProfile,
-            onOpenSettings = onOpenSettings,
-            onLogout = onLogout
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+        ) {
+            Menu(
+                modifier = Modifier,
+                username = username,
+                email = email,
+                profileImage = profileImage,
+                onEditProfile = onEditProfile,
+                onOpenSettings = onOpenSettings,
+                onLogout = onLogout
+            )
+        }
     }
 }
 
 @Composable
 fun Menu(
     modifier: Modifier,
+    username: String,
+    email: String,
+    profileImage: String?,
     onEditProfile: () -> Unit,
     onOpenSettings: () -> Unit,
     onLogout: () -> Unit
@@ -175,6 +172,29 @@ fun Menu(
             .fillMaxWidth()
             .background(Color(0xffebebeb), RoundedCornerShape(8.dp))
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ProfileImage(
+                modifier = Modifier.size(110.dp),
+                imageUrl = profileImage,
+                onChangePhoto = null
+            )
+            Username(
+                modifier = Modifier.padding(top = 12.dp),
+                username = username
+            )
+            if (email.isNotBlank()) {
+                Mail(
+                    modifier = Modifier.padding(top = 8.dp),
+                    email = email
+                )
+            }
+        }
+        HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         MenuItem(
             icon = Icons.Default.Edit,
             text = "Edit Profile",
@@ -295,9 +315,8 @@ fun ProfileImage(
 @Composable
 fun Username(modifier: Modifier, username: String) {
     Text(
-        text = "Hola, $username!",
-        modifier = modifier
-            .padding(top = 10.dp),
+        text = "Hola, $username",
+        modifier = modifier,
         color = Color.Black,
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold

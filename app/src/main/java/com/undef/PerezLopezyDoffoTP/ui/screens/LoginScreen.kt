@@ -1,5 +1,7 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
+import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +21,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
@@ -38,14 +39,13 @@ import androidx.navigation.NavController
 import com.undef.PerezLopezyDoffoTP.R
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.LoginViewModel
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 
 @Preview(showBackground = true)
 @Composable
@@ -221,7 +221,7 @@ fun RememberMeOption(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
 @Composable
 fun BiometricLoginButton(viewModel: LoginViewModel) {
     val context = LocalContext.current
-    val activity = context as? FragmentActivity ?: return
+    val activity = context as? ComponentActivity ?: return
     val executor = remember(context) { ContextCompat.getMainExecutor(context) }
     val promptInfo = remember {
         val builder = BiometricPrompt.PromptInfo.Builder()
