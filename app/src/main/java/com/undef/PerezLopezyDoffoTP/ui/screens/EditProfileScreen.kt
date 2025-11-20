@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -79,6 +81,7 @@ fun EditProfile(modifier: Modifier, navController: NavController, viewModel: Edi
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val saveEnabled = uiState.hasChanges && !uiState.isLoading
+    val scrollState = rememberScrollState()
     val pickPhotoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -118,6 +121,7 @@ fun EditProfile(modifier: Modifier, navController: NavController, viewModel: Edi
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
         ) {
             Text(
                 text = "Editar perfil",
@@ -280,4 +284,3 @@ private suspend fun Context.encodeImageToDataUri(uri: Uri): String? = withContex
         "data:$mimeType;base64,$base64"
     }.getOrNull()
 }
-

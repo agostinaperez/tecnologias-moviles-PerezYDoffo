@@ -32,10 +32,12 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -51,6 +53,8 @@ import com.undef.PerezLopezyDoffoTP.ui.viewModels.ProfileViewModel
 import coil.compose.AsyncImage
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import android.graphics.BitmapFactory
+import android.util.Base64
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -269,6 +273,17 @@ fun ProfileImage(
     imageUrl: String?,
     onChangePhoto: (() -> Unit)? = null
 ) {
+    val imageBitmap = remember(imageUrl) {
+        imageUrl
+            ?.takeIf { it.startsWith("data:image") && it.contains(",") }
+            ?.substringAfter(",")
+            ?.let { base64 ->
+                runCatching {
+                    val decodedBytes = Base64.decode(base64, Base64.DEFAULT)
+                    BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)?.asImageBitmap()
+                }.getOrNull()
+            }
+    }
     Box(
         modifier = modifier
             .clip(CircleShape)
@@ -278,24 +293,37 @@ fun ProfileImage(
             },
         contentAlignment = Alignment.BottomEnd
     ) {
-        if (imageUrl.isNullOrBlank()) {
-            Image(
-                painter = painterResource(id = R.drawable.blank_profile_pic),
-                contentDescription = "Foto de perfil",
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "Foto de perfil",
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+        when {
+            imageBitmap != null -> {
+                Image(
+                    bitmap = imageBitmap,
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            imageUrl.isNullOrBlank() -> {
+                Image(
+                    painter = painterResource(id = R.drawable.blank_profile_pic),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            else -> {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
         if (onChangePhoto != null) {
             Icon(
@@ -315,7 +343,7 @@ fun ProfileImage(
 @Composable
 fun Username(modifier: Modifier, username: String) {
     Text(
-        text = "Hola, $username",
+        text = "Hola, $username!",
         modifier = modifier,
         color = Color.Black,
         style = MaterialTheme.typography.headlineSmall,
