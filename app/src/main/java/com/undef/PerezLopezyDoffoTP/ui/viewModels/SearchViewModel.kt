@@ -6,8 +6,7 @@ import com.undef.PerezLopezyDoffoTP.repository.EmprendimientoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 class SearchViewModel : ViewModel() {
@@ -15,12 +14,21 @@ class SearchViewModel : ViewModel() {
 
     val searchQuery: StateFlow<String> = query
 
+    private val emprendimientosSource = EmprendimientoRepository.observeEmprendimientos()
+
     val emprendimientos: StateFlow<List<Emprendimiento>> =
-        query
-            .debounce(250)
-            .flatMapLatest { text ->
-                EmprendimientoRepository.observeFiltered(text.trim())
+        combine(query, emprendimientosSource) { text, emprendimientos ->
+            val normalizedQuery = text.trim()
+            if (normalizedQuery.isEmpty()) {
+                emprendimientos
+            } else {
+                val lowerQuery = normalizedQuery.lowercase()
+                emprendimientos.filter { emprendimiento ->
+                    emprendimiento.name.contains(lowerQuery, ignoreCase = true) ||
+                        emprendimiento.emprendedor.name.contains(lowerQuery, ignoreCase = true)
+                }
             }
+        }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),

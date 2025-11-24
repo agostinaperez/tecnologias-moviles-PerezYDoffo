@@ -7,7 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 // 10.0.2.2 apunta al localhost de la máquina cuando se corre en el emulador Android.
-private const val BASE_URL = "http://192.168.101.16:3000/"
+private const val BASE_URL = "http://192.168.0.106:3000/"
 
 //Construye las dependencias HTTP (OkHttp + Retrofit + Moshi) para hablar con json-server.
 object NetworkModule {

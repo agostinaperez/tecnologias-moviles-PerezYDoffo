@@ -75,11 +75,6 @@ fun Search(
             SearchBar(searchQuery) { query ->
                 searchQuery = query
                 searchViewModel.updateQuery(query.text)
-                if (searchQuery.text == ""){
-                    navController.navigate(Screen.Home.route){
-                        popUpTo(Screen.Home.route) { inclusive = true }
-                    }
-                }
             }
         }
         item {

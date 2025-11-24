@@ -1,7 +1,6 @@
 package com.undef.PerezLopezyDoffoTP.ui.screens
 
 import android.os.Build
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 
 @Preview(showBackground = true)
 @Composable
@@ -221,8 +221,8 @@ fun RememberMeOption(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
 @Composable
 fun BiometricLoginButton(viewModel: LoginViewModel) {
     val context = LocalContext.current
-    val activity = context as? ComponentActivity ?: return
-    val executor = remember(context) { ContextCompat.getMainExecutor(context) }
+    val activity = context as? FragmentActivity ?: return
+    val executor = remember(activity) { ContextCompat.getMainExecutor(activity) }
     val promptInfo = remember {
         val builder = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Inicio de sesión biométrico")
