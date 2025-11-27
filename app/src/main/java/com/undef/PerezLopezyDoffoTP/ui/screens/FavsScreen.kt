@@ -30,6 +30,7 @@ import com.undef.PerezLopezyDoffoTP.ui.components.Spacer
 import com.undef.PerezLopezyDoffoTP.ui.navigation.Screen
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.FavoriteAlertItem
 import com.undef.PerezLopezyDoffoTP.ui.viewModels.FavsViewModel
+import com.undef.PerezLopezyDoffoTP.utils.NotificationHelper
 
 @Composable
 fun FavsScreen (navController: NavController){
@@ -83,6 +84,9 @@ fun Favs(modifier: Modifier, navController: NavController, viewModel: FavsViewMo
                 },
                 onAlertChanged = { enabled ->
                     viewModel.setAlertFor(item.emprendimiento.emprendedor.id, enabled)
+                    if (enabled) {
+                        NotificationHelper.showActivatedNotification(context)
+                    }
                     val message = if (enabled) {
                         "Alertas activadas para ${item.emprendimiento.emprendedor.name}"
                     } else {
